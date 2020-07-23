@@ -23,8 +23,8 @@ public class SecKillService {
     private HttpService httpService;
 
 
-    public SecKillService(String cookies, String st, String tk) {
-        httpService = new HttpService(cookies, st, tk);
+    public SecKillService() {
+        httpService = new HttpService();
     }
 
     /**
