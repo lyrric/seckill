@@ -1,5 +1,6 @@
 package com.github.lyrric.service;
 
+import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.BusinessException;
 import com.github.lyrric.model.VaccineDetail;
 import com.github.lyrric.model.VaccineList;
@@ -35,7 +36,7 @@ public class SecKillService {
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     public void startSecKill(String vcode, Integer id) {
         AtomicReference<VaccineDetail> vaccineDetail = null;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             new Thread(()->{
                 //1.获取疫苗信息
                 do {
@@ -50,47 +51,36 @@ public class SecKillService {
                 //2.加密time串
                 Long time = vaccineDetail.get().getTime();
                 String str = time + "fuckhacker10000times";
-                MessageDigest md5 = null;
                 try {
-                    md5 = MessageDigest.getInstance("md5");
+                    MessageDigest md5 = MessageDigest.getInstance("md5");
+                    String sign =  new BigInteger(1, md5.digest(str.getBytes(StandardCharsets.UTF_8))).toString(16);
+                    //3.排序可预约日期,按照total从高到低排序
+                    List<VaccineDetail.Day> days = vaccineDetail.get().getDays().stream().filter(t -> t.getTotal() != 0).sorted(Comparator.comparing(VaccineDetail.Day::getTotal).reversed()).collect(Collectors.toList());
+                    //4.并发请求秒杀，此请求受验证码影响，最多只会成功一次
+                    days.forEach(day -> {
+                        new Thread(()->{
+                            for (int j = 0; j < 5; j++) {
+                                try {
+                                    httpService.secKill(id.toString(), "1", Config.memberId.toString(), formatDate(day.getDay()), sign, vcode);
+                                    System.out.println("预约成功！");
+                                    break;
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } catch (BusinessException e) {
+                                    System.out.println("失败:"+e.getErrMsg());
+                                }
+                            }
+                        }).start();
+                    });
                 } catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 }
-                String sign =  new BigInteger(1, md5.digest(str.getBytes(StandardCharsets.UTF_8))).toString(16);
-                //3.排序可预约日期,按照total从高到低排序
-                List<VaccineDetail.Day> days = vaccineDetail.get().getDays().stream().filter(t -> t.getTotal() != 0).sorted(Comparator.comparing(VaccineDetail.Day::getTotal).reversed()).collect(Collectors.toList());
-                //4.并发请求秒杀
-                days.forEach(day -> {
-                    new Thread(()->{
-                        for (int j = 0; j < 10; j++) {
-                            try {
-                                httpService.secKill(id.toString(), "1", "1936032", formatDate(day.getDay()), sign, vcode);
-                                System.out.println("预约成功！");
-                                break;
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (BusinessException e) {
-                                System.out.println("失败:"+e.getErrMsg());
-                            }
-                        }
-                    }).start();
-                });
-            }).start();
 
+            }).start();
         }
 
-
     }
 
-    public void testSecKill(String vcode) throws IOException, BusinessException, NoSuchAlgorithmException {
-        String departmentVaccineId = "3178";
-        String vaccineIndex = "1";
-        String linkmanId = "1936032";
-        String subscribeDate = "2020-07-24";
-        String sign = new BigInteger(1, MessageDigest.getInstance("md5").digest("1595311230242fuckhacker10000times".getBytes(StandardCharsets.UTF_8))).toString(16);
-        System.out.println(sign);
-        httpService.secKill(departmentVaccineId, vaccineIndex, linkmanId, subscribeDate, sign, vcode);
-    }
 
     public String getCapture() throws IOException, BusinessException {
         return httpService.getCapture();

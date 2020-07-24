@@ -1,25 +1,19 @@
-package com.github.lyrric.frame;
+package com.github.lyrric.ui;
 
 import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.BusinessException;
+import com.github.lyrric.model.TableModel;
 import com.github.lyrric.model.VaccineList;
 import com.github.lyrric.service.SecKillService;
-import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
 import org.apache.commons.lang3.StringUtils;
 import sun.misc.BASE64Decoder;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +21,7 @@ import java.util.List;
  *
  * @author wangxiaodong
  */
-public class MyFrame extends JFrame {
+public class MainFrame extends JFrame {
 
     SecKillService service = new SecKillService();
 
@@ -41,28 +35,33 @@ public class MyFrame extends JFrame {
     private List<VaccineList> vaccines;
 
 
-    ConfigFrame configFrame ;
     JTextField codeField;
     JLabel codeImage;
     JButton startBtn;
-    JButton configBtn;
+
+    JButton setCookieBtn;
+
+    JButton setMemberBtn;
+
     JTable vaccinesTable;
 
     JButton refreshBtn;
+
     DefaultTableModel tableModel;
 
     JTextArea note;
-    public MyFrame() {
+    public MainFrame() {
         setLayout(null);
         setTitle("Just For Fun");
         setBounds(500 , 500, 540, 360);
         init();
         setLocationRelativeTo(null);
         setVisible(true);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     private void init(){
-        configFrame = new ConfigFrame();
         codeImage = new JLabel("点击加载验证码");
         codeImage.addMouseListener(new MouseAdapter() {
             @Override
@@ -77,11 +76,30 @@ public class MyFrame extends JFrame {
         startBtn.addActionListener(e -> {
            start();
         });
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        configBtn = new JButton("设置cookie");
-        configBtn.addActionListener((e)->{
-            configFrame.setVisible(true);
+
+        setCookieBtn = new JButton("设置Cookie");
+        setCookieBtn.addActionListener((e)->{
+            ConfigDialog dialog = new ConfigDialog(this);
+            dialog.setModal(true);
+            dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+            dialog.setVisible(true);
+            if(dialog.success()){
+                appendMsg("设置cookie成功");
+            }
+
         });
+
+        setMemberBtn = new JButton("选择成员");
+        setMemberBtn.addActionListener((e)->{
+            MemberDialog dialog = new MemberDialog(this);
+            dialog.setModal(true);
+            dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+            dialog.setVisible(true);
+            if(dialog.success()){
+                appendMsg("已设置成员");
+            }
+        });
+
         refreshBtn = new JButton("刷新疫苗列表");
         refreshBtn.addActionListener((e)->{
             refreshVaccines();
@@ -89,10 +107,10 @@ public class MyFrame extends JFrame {
 
         note = new JTextArea();
         note.append("日记记录：\r\n");
-        note.setEnabled(false);
+        note.setEditable(false);
 
         String[] columnNames = { "id", "医院名称","秒杀时间" };
-        tableModel = new VaccineTableModel(new String[0][], columnNames);
+        tableModel = new TableModel(new String[0][], columnNames);
         vaccinesTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(vaccinesTable);
 
@@ -102,8 +120,10 @@ public class MyFrame extends JFrame {
         codeField.setBounds(180, 230, 60, 30);
         startBtn.setBounds(260, 230, 100, 30);
 
-        configBtn.setBounds(20, 280, 100, 30);
-        refreshBtn.setBounds(130, 280,120, 30);
+        setCookieBtn.setBounds(20, 280, 100, 30);
+        setMemberBtn.setBounds(130, 280, 100, 30);
+        refreshBtn.setBounds(240, 280,120, 30);
+
         note.setBounds(380, 10, 120, 300);
 
         add(note);
@@ -111,7 +131,8 @@ public class MyFrame extends JFrame {
         add(codeImage);
         add(codeField);
         add(startBtn);
-        add(configBtn);
+        add(setCookieBtn);
+        add(setMemberBtn);
         add(refreshBtn);
     }
 

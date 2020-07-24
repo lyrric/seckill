@@ -1,4 +1,4 @@
-package com.github.lyrric.frame;
+package com.github.lyrric.model;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -8,9 +8,9 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author wangxiaodong
  */
-public class VaccineTableModel extends DefaultTableModel {
+public class TableModel extends DefaultTableModel {
 
-    public VaccineTableModel(Object[][] data, Object[] columnNames) {
+    public TableModel(Object[][] data, Object[] columnNames) {
         super(data, columnNames);
     }
 
