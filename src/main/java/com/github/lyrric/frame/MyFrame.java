@@ -1,16 +1,26 @@
 package com.github.lyrric.frame;
 
+import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.BusinessException;
-import com.github.lyrric.service.HttpService;
+import com.github.lyrric.model.VaccineList;
 import com.github.lyrric.service.SecKillService;
+import com.sun.xml.internal.messaging.saaj.util.ByteInputStream;
+import org.apache.commons.lang3.StringUtils;
 import sun.misc.BASE64Decoder;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created on 2020-07-21.
@@ -21,92 +31,146 @@ public class MyFrame extends JFrame {
 
     SecKillService service = new SecKillService();
 
+    /**
+     * 验证码64
+     */
     private String captureBase64;
+    /**
+     * 疫苗列表
+     */
+    private List<VaccineList> vaccines;
+
 
     ConfigFrame configFrame ;
-    JTextField code;
-    JLabel jLabel;
-    JButton checkSubmit;
-    JLabel note;
-    JButton analyseCode;
-    JButton configButton;
-    public MyFrame() throws HeadlessException {
-        this.setLayout(null);
-        this.setTitle("Just For Fun");
+    JTextField codeField;
+    JLabel codeImage;
+    JButton startBtn;
+    JButton configBtn;
+    JTable vaccinesTable;
+
+    JButton refreshBtn;
+    DefaultTableModel tableModel;
+
+    JTextArea note;
+    public MyFrame() {
+        setLayout(null);
+        setTitle("Just For Fun");
+        setBounds(500 , 500, 540, 360);
+        init();
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
+
+    private void init(){
         configFrame = new ConfigFrame();
-        jLabel = new JLabel("点击加载验证码");
-        note = new JLabel();
-        jLabel.addMouseListener(new MouseAdapter() {
+        codeImage = new JLabel("点击加载验证码");
+        codeImage.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                try {
-                    String capture = service.getCapture();
-                    captureBase64 = "data:image/png;base64," + capture;
-                    BASE64Decoder decoder = new BASE64Decoder();
-                    byte[] bytes = decoder.decodeBuffer(capture);
-                    ImageIcon image = new ImageIcon(bytes);
-                    jLabel.setIcon(image);
-                    jLabel.setText("");
-                    repaint();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } catch (BusinessException ex) {
-                    note.setText(ex.getMessage());
-                    repaint();
-                }
+                refreshImage();
             }
         });
+        codeField = new JTextField("");
+        startBtn = new JButton("开始");
 
-        note.setBounds(50, 100,120,60);
-        this.add(note);
-        jLabel.setBounds(50, 20, 180, 70);
-        code = new JTextField("");
-        code.setBounds(250, 40, 100, 30);
-        checkSubmit = new JButton("开始");
-        checkSubmit.setBounds(360, 40, 100, 40);
-        checkSubmit.addActionListener(e -> {
-            service.startSecKill(code.getText(), 5352);
+        startBtn.addActionListener(e -> {
+           start();
         });
-        this.add(jLabel);
-        this.add(code);
-        this.add(checkSubmit);
-        this.setBounds(500, 500, 500, 300);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        analyseCode = new JButton("识别验证码");
-        analyseCode.setBounds(200, 100, 100, 30);
-        analyseCode.addActionListener(e->{
-            analyzeCapture();
-        });
-        this.add(analyseCode);
-        configButton = new JButton("设置cookie");
-        configButton.setBounds(320, 100, 100, 30);
-        configButton.addActionListener((e)->{
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        configBtn = new JButton("设置cookie");
+        configBtn.addActionListener((e)->{
             configFrame.setVisible(true);
         });
-        this.add(configButton);
-        this.setVisible(true);
+        refreshBtn = new JButton("刷新疫苗列表");
+        refreshBtn.addActionListener((e)->{
+            refreshVaccines();
+        });
+
+        note = new JTextArea();
+        note.append("日记记录：\r\n");
+        note.setEnabled(false);
+
+        String[] columnNames = { "id", "医院名称","秒杀时间" };
+        tableModel = new VaccineTableModel(new String[0][], columnNames);
+        vaccinesTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(vaccinesTable);
+
+        scrollPane.setBounds(10,10,360,200);
+
+        codeImage.setBounds(20, 225, 100, 40);
+        codeField.setBounds(180, 230, 60, 30);
+        startBtn.setBounds(260, 230, 100, 30);
+
+        configBtn.setBounds(20, 280, 100, 30);
+        refreshBtn.setBounds(130, 280,120, 30);
+        note.setBounds(380, 10, 120, 300);
+
+        add(note);
+        add(scrollPane);
+        add(codeImage);
+        add(codeField);
+        add(startBtn);
+        add(configBtn);
+        add(refreshBtn);
     }
 
-    @Override
-    public void update(Graphics g) {
 
-        super.update(g);
-    }
 
-    @Override
-    public void repaint(long time, int x, int y, int width, int height) {
-        super.repaint(time, x, y, width, height);
-    }
-
-    private void analyzeCapture()  {
+    private void refreshVaccines(){
         try {
-            String result = new HttpService().getCode(captureBase64);
-            code.setText(result);
+            vaccines = service.getVaccines();
+            vaccinesTable.removeAll();
+            if(vaccines != null && !vaccines.isEmpty()){
+                for (VaccineList hospital : vaccines) {
+                    List<VaccineList.Vaccine> list = hospital.getVaccines();
+                    for (VaccineList.Vaccine t : list) {
+                        String[] item = { t.getId().toString(), hospital.getName(),t.getSubDateStart() };
+                        tableModel.addRow(item);
+                    }
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
+            appendMsg("未知错误");
         } catch (BusinessException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(),"提示", JOptionPane.PLAIN_MESSAGE);
+            appendMsg("错误："+e.getErrMsg()+"，errCode"+e.getCode());
         }
+    }
+    private void start(){
+        if(StringUtils.isEmpty(Config.cookies)){
+            appendMsg("请配置cookie!!!");
+            return ;
+        }
+        if(vaccinesTable.getSelectedRow() < 0){
+            appendMsg("请选择要抢购的疫苗");
+            return ;
+        }
+        if(StringUtils.isEmpty(codeField.getText())){
+            appendMsg("请先输入验证码");
+            return ;
+        }
+        Integer id = Integer.parseInt(tableModel.getValueAt(vaccinesTable.getSelectedRow(), 0).toString());
+        service.startSecKill(codeField.getText(), id);
+    }
+    private void refreshImage(){
+        try {
+            captureBase64  = service.getCapture();
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] bytes = decoder.decodeBuffer(captureBase64);
+            ImageIcon image = new ImageIcon(bytes);
+            ImageIcon imageIcon = new ImageIcon(image.getImage().getScaledInstance(100, 50, Image.SCALE_DEFAULT));
+            codeImage.setIcon(imageIcon);
+            codeImage.setText("");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (BusinessException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(),"提示", JOptionPane.PLAIN_MESSAGE);
+        }
+    }
+
+    private void appendMsg(String message){
+        note.append(message);
+        note.append("\r\n");
     }
 }

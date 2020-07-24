@@ -2,6 +2,7 @@ package com.github.lyrric.service;
 
 import com.github.lyrric.model.BusinessException;
 import com.github.lyrric.model.VaccineDetail;
+import com.github.lyrric.model.VaccineList;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -95,7 +96,9 @@ public class SecKillService {
         return httpService.getCapture();
     }
 
-
+    public List<VaccineList> getVaccines() throws IOException, BusinessException {
+        return httpService.getVaccineList();
+    }
     /**
      * 将19981231变成1998-12-31
      * @param date

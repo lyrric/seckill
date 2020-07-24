@@ -1,13 +1,12 @@
 package com.github.lyrric.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.lyrric.conf.Config;
-import com.github.lyrric.conf.DataConf;
 import com.github.lyrric.model.BusinessException;
 import com.github.lyrric.model.VaccineDetail;
 import com.github.lyrric.model.VaccineList;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -16,7 +15,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
@@ -41,15 +39,16 @@ public class HttpService {
     private String baseUrl = "https://wx.healthych.com";
 
     public HttpService(){
-        HttpHost proxy = new HttpHost("127.0.0.1",8888);
-        httpClient = HttpClients.custom().setProxy(proxy).build();
-       //httpClient = HttpClients.createDefault();
+//        HttpHost proxy = new HttpHost("127.0.0.1",8888);
+//        httpClient = HttpClients.custom().setProxy(proxy).build();
+       httpClient = HttpClients.createDefault();
     }
 
     /**
      * 获取疫苗信息
      */
     public VaccineDetail getVaccineDetail(Integer id) throws IOException, BusinessException {
+        hasAvailableConfig();
         String path = baseUrl + "/seckill/vaccine/detailVo.do?id="+id.toString();
         String s = get(path, new HashMap<>());
         System.out.println(s);
@@ -60,6 +59,7 @@ public class HttpService {
      * 获取验证码
      */
     public String getCapture() throws IOException, BusinessException {
+        hasAvailableConfig();
         String path = baseUrl+"/seckill/validateCode/vcode.do";
         return get(path, null);
     }
@@ -104,7 +104,7 @@ public class HttpService {
      * 识别图形验证码
      * @return
      */
-    public String getCode(String imageBase64) throws IOException, BusinessException {
+    public String analyseCode(String imageBase64) throws IOException, BusinessException {
         imageBase64 = "data:image/png;base64,"+imageBase64;
         HttpPost post = new HttpPost("http://apigateway.jianjiaoshuju.com/api/v_1/fzyzm.html");
 
@@ -142,22 +142,13 @@ public class HttpService {
     }
 
     /**
-     * 是否有可用的用户信息
-     * @return
-     */
-    private void hasAvailableSecKillConfig() throws BusinessException {
-        if(DataConf.secKillConfigs == null || DataConf.secKillConfigs.isEmpty()){
-            throw new BusinessException("0", "没有可用的用户信息");
-        }
-    }
-    /**
      * 获取疫苗列表
      * @return
      * @throws BusinessException
      */
     public List<VaccineList> getVaccineList() throws BusinessException, IOException {
-        hasAvailableSecKillConfig();
-        String path = "/seckill/department/pageList.do";
+        hasAvailableConfig();
+        String path = baseUrl+"/seckill/department/pageList.do";
         Map<String, String> param = new HashMap<>();
         //九价疫苗的code
         param.put("vaccineCode", "8803");
@@ -173,6 +164,11 @@ public class HttpService {
         JSONObject jsonObject = JSONObject.parseObject(json);
         JSONArray rows = jsonObject.getJSONArray("rows");
         return rows.toJavaList(VaccineList.class);
+    }
 
+    private void hasAvailableConfig() throws BusinessException {
+        if(StringUtils.isEmpty(Config.cookies)){
+            throw new BusinessException("0", "请先配置cookie");
+        }
     }
 }

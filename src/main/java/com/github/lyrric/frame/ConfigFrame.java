@@ -3,9 +3,7 @@ package com.github.lyrric.frame;
 import com.github.lyrric.conf.Config;
 import com.github.lyrric.util.ParseUtil;
 
-import javax.security.auth.Subject;
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * Created on 2020-07-23.
@@ -24,8 +22,8 @@ public class ConfigFrame extends JFrame {
         jTextArea = new JTextArea();
         jTextArea.setBounds(20,20,400,300);
         jTextArea.setText(Config.reqHeader);
-        submit = new JButton("提交");
-        submit.setBounds(200, 340, 100, 40);
+        submit = new JButton("验证并保存");
+        submit.setBounds(180, 330, 100, 40);
         submit.addActionListener(e -> {
             if(jTextArea.getText().isEmpty() || !ParseUtil.parseHeader(jTextArea.getText())){
                 JOptionPane.showMessageDialog(null, "数据校验失败!","提示", JOptionPane.PLAIN_MESSAGE);
@@ -37,6 +35,7 @@ public class ConfigFrame extends JFrame {
         this.add(submit);
         this.setVisible(false);
         this.setBounds(500, 500, 460, 420);
+        setLocationRelativeTo(null);
     }
 
 
