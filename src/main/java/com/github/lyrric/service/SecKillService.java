@@ -35,7 +35,7 @@ public class SecKillService {
      */
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     public void startSecKill(String vcode, Integer id) {
-        AtomicReference<VaccineDetail> vaccineDetail = null;
+        AtomicReference<VaccineDetail> vaccineDetail = new AtomicReference<>();
         for (int i = 0; i < 5; i++) {
             new Thread(()->{
                 //1.获取疫苗信息
