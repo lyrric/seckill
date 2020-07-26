@@ -54,12 +54,11 @@ public class SecKillService {
                 try {
                     MessageDigest md5 = MessageDigest.getInstance("md5");
                     String sign =  new BigInteger(1, md5.digest(str.getBytes(StandardCharsets.UTF_8))).toString(16);
-                    //3.排序可预约日期,按照total从高到低排序
-                    List<VaccineDetail.Day> days = vaccineDetail.get().getDays().stream().filter(t -> t.getTotal() != 0).sorted(Comparator.comparing(VaccineDetail.Day::getTotal).reversed()).collect(Collectors.toList());
-                    //4.并发请求秒杀，此请求受验证码影响，最多只会成功一次
+                    List<VaccineDetail.Day> days = vaccineDetail.get().getDays();
+                    //3.并发请求秒杀，此请求受验证码影响，最多只会成功一次
                     days.forEach(day -> {
                         new Thread(()->{
-                            for (int j = 0; j < 5; j++) {
+                            for (int j = 0; j < 2; j++) {
                                 try {
                                     httpService.secKill(id.toString(), "1", Config.memberId.toString(), formatDate(day.getDay()), sign, vcode);
                                     System.out.println("预约成功！");
