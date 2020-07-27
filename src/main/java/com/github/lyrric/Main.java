@@ -1,6 +1,6 @@
 package com.github.lyrric;
 
-import com.github.lyrric.frame.MyFrame;
+import com.github.lyrric.ui.MainFrame;
 
 /**
  * Created on 2020-07-21.
@@ -10,7 +10,7 @@ import com.github.lyrric.frame.MyFrame;
 public class Main {
 
     public static void main(String[] args) {
-        new MyFrame();
+        new MainFrame();
     }
 
 }
