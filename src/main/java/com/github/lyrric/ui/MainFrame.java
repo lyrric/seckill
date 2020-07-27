@@ -72,7 +72,6 @@ public class MainFrame extends JFrame {
         });
         codeField = new JTextField("");
         startBtn = new JButton("开始");
-
         startBtn.addActionListener(e -> {
            start();
         });
@@ -172,7 +171,14 @@ public class MainFrame extends JFrame {
             return ;
         }
         Integer id = Integer.parseInt(tableModel.getValueAt(vaccinesTable.getSelectedRow(), 0).toString());
-        service.startSecKill(codeField.getText(), id);
+        new Thread(()->{
+            startBtn.setEnabled(false);
+            appendMsg("任务进行中");
+            boolean b = service.startSecKill(codeField.getText(), id);
+            appendMsg("任务结束: "+ (b?"秒杀成功":"秒杀失败"));
+            startBtn.setEnabled(true);
+        }).start();
+
     }
     private void refreshImage(){
         try {
