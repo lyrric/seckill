@@ -31,6 +31,7 @@ public class ParseUtil {
             return false;
         }
         Config.cookies  = reqHeader.substring(start+"Cookie:".length());
+        Config.reqHeader = reqHeader;
         try {
             new HttpService().getCapture();
         } catch (Exception e) {

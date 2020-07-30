@@ -48,7 +48,14 @@ public class SecKillService {
         Runnable task = ()->{
             try {
                 //1.获取疫苗信息
-                VaccineDetail vaccineDetail = httpService.getVaccineDetail(id);
+                VaccineDetail vaccineDetail = null;
+                do {
+                    try {
+                        vaccineDetail = httpService.getVaccineDetail(id);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }while (vaccineDetail == null);
                 //2.加密time串
                 Long time = vaccineDetail.getTime();
                 String str = time + "fuckhacker10000times";
@@ -69,8 +76,6 @@ public class SecKillService {
                         }
                     }).start();
                 });
-            }catch (BusinessException e) {
-                System.out.println(e.getErrMsg());
             } catch (Exception e) {
                 e.printStackTrace();
             }
