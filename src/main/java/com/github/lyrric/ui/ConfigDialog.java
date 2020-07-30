@@ -46,6 +46,7 @@ public class ConfigDialog extends JDialog {
         this.add(submit);
         this.setVisible(false);
         this.setBounds(500, 500, 460, 400);
+        this.setResizable(false);
         setLocationRelativeTo(null);
     }
 

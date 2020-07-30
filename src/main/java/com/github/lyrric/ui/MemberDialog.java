@@ -52,6 +52,7 @@ public class MemberDialog extends JDialog {
         setBounds(0,0, 430, 210);
         setLocationRelativeTo(null);
         setVisible(false);
+        this.setResizable(false);
         initData();
     }
 
