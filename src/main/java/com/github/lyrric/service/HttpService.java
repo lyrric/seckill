@@ -17,6 +17,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
@@ -36,13 +37,7 @@ import java.util.Map;
  */
 public class HttpService {
 
-    private HttpClient httpClient;
-
     private String baseUrl = "https://wx.healthych.com";
-
-    public HttpService(){
-       httpClient = HttpClients.createDefault();
-    }
 
     /**
      * 获取疫苗信息
@@ -128,6 +123,7 @@ public class HttpService {
         }
         HttpGet get = new HttpGet(path);
         get.setHeaders(getCommonHeader());
+        CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpEntity httpEntity = httpClient.execute(get).getEntity();
         String json =  EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
         JSONObject jsonObject = JSONObject.parseObject(json);
