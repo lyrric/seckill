@@ -11,6 +11,7 @@ import com.github.lyrric.service.HttpService;
 public class ParseUtil {
 
     public static boolean parseHeader(String reqHeader){
+        Config.reqHeader = reqHeader;
         reqHeader = reqHeader.replaceAll(" ", "");
         reqHeader = reqHeader.replaceAll("\n", "");
         reqHeader = reqHeader.replaceAll("Host:", "");
@@ -31,7 +32,6 @@ public class ParseUtil {
             return false;
         }
         Config.cookies  = reqHeader.substring(start+"Cookie:".length());
-        Config.reqHeader = reqHeader;
         try {
             new HttpService().getCapture();
         } catch (Exception e) {

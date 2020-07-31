@@ -130,6 +130,7 @@ public class HttpService {
         if("0000".equals(jsonObject.get("code"))){
             return jsonObject.getString("data");
         }else{
+            System.out.println(json);
             throw new BusinessException(jsonObject.getString("code"), jsonObject.getString("msg"));
         }
     }

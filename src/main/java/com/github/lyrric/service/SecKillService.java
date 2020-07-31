@@ -70,6 +70,7 @@ public class SecKillService {
                             success.set(true);
                             System.out.println("预约成功！");
                         } catch (BusinessException e) {
+                            e.printStackTrace();
                             System.out.println("失败:"+e.getErrMsg());
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -83,6 +84,7 @@ public class SecKillService {
         for (int i = 0; i < 10; i++) {
             executorService.submit(task);
         }
+        executorService.shutdown();
         //等待线程结束
         try {
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
