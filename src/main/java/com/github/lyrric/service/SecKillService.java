@@ -53,7 +53,7 @@ public class SecKillService {
                     try {
                         vaccineDetail = httpService.getVaccineDetail(id);
                     }catch (Exception e){
-                        e.printStackTrace();
+                        System.out.println(e.getMessage());
                     }
                 }while (vaccineDetail == null);
                 //2.加密time串
