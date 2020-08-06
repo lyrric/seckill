@@ -1,9 +1,7 @@
 package com.github.lyrric.service;
 
 import com.github.lyrric.conf.Config;
-import com.github.lyrric.model.BusinessException;
-import com.github.lyrric.model.VaccineDetail;
-import com.github.lyrric.model.VaccineList;
+import com.github.lyrric.model.*;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -40,64 +38,68 @@ public class SecKillService {
 
     /**
      * 多线程秒杀开启
-     * @param vcode
      */
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
-    public boolean startSecKill(String vcode, Integer id) {
+    public boolean startSecKill(Integer vaccineId) {
         AtomicBoolean success = new AtomicBoolean(false);
-        Runnable task = ()->{
-            try {
-                //1.获取疫苗信息
-                VaccineDetail vaccineDetail = null;
-                do {
-                    try {
-                        vaccineDetail = httpService.getVaccineDetail(id);
-                    }catch (Exception e){
-                        System.out.println(e.getMessage());
-                    }
-                }while (vaccineDetail == null);
-                //2.加密time串
-                Long time = vaccineDetail.getTime();
-                String str = time + "fuckhacker10000times";
-                MessageDigest md5 = MessageDigest.getInstance("md5");
-                String sign =  new BigInteger(1, md5.digest(str.getBytes(StandardCharsets.UTF_8))).toString(16);
-                List<VaccineDetail.Day> days = vaccineDetail.getDays();
-                //3.并发请求秒杀，此请求受验证码影响，最多只会成功一次
-                days.forEach(day -> {
-                    new Thread(()->{
-                        try {
-                            httpService.secKill(id.toString(), "1", Config.memberId.toString(), formatDate(day.getDay()), sign, vcode);
-                            success.set(true);
-                            System.out.println("预约成功！");
-                        } catch (BusinessException e) {
-                            e.printStackTrace();
-                            System.out.println("失败:"+e.getErrMsg());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }).start();
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        };
-        for (int i = 0; i < 10; i++) {
+        AtomicReference<String> orderId = new AtomicReference<>(null);
+        //Runnable task = ()-> {
+            do {
+                try {
+                    //1.直接秒杀、获取秒杀资格
+                    orderId.set(httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(), Config.idCard));
+                    //2.秒杀成功后，获取接种日期
+                    List<SubDate> skSubDays = httpService.getSkSubDays(vaccineId.toString(), orderId.get());
+                    skSubDays.forEach(day -> {
+                        Runnable getTimeTask = () -> {
+                            try {
+                                //3.根据接种日期，获取接种时间段
+                                List<SubDateTime> skSubDayTime = httpService.getSkSubDayTime(vaccineId.toString(), orderId.toString(), day.getDay());
+                                skSubDayTime.forEach(time -> {
+                                    //4.提交接种时间
+                                    Runnable subDayTimeTask = () -> {
+                                        try {
+                                            httpService.subDayTime(vaccineId.toString(), orderId.get(), day.getDay(), time.getWid());
+                                            success.set(true);
+                                        } catch (IOException | BusinessException e) {
+                                            e.printStackTrace();
+                                        }
+                                    };
+                                    new Thread(subDayTimeTask).start();
+                                });
+                            } catch (IOException | BusinessException e) {
+                                e.printStackTrace();
+                            }
+                        };
+                        new Thread(getTimeTask).start();
+                    });
+                } catch (BusinessException e) {
+                    System.out.println(e.getErrMsg());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } while (orderId.get() == null);
+        //};
+
+/*        for (int i = 0; i < 10; i++) {
             executorService.submit(task);
         }
+
         executorService.shutdown();
         //等待线程结束
         try {
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
         return success.get();
     }
 
 
-    public String getCapture() throws IOException, BusinessException {
-        return httpService.getCapture();
-    }
+//    public String getCapture() throws IOException, BusinessException {
+//        return httpService.getCapture();
+//    }
 
     public List<VaccineList> getVaccines() throws IOException, BusinessException {
         return httpService.getVaccineList();
@@ -107,8 +109,8 @@ public class SecKillService {
      * @param date
      * @return
      */
-    public String formatDate(String date){
-        return date.substring(0,3)+"-"+date.substring(3,5)+"-"+date.substring(6,8);
-    }
+//    public String formatDate(String date){
+//        return date.substring(0,3)+"-"+date.substring(3,5)+"-"+date.substring(6,8);
+//    }
 
 }

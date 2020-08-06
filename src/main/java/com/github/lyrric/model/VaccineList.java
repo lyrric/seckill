@@ -1,7 +1,5 @@
 package com.github.lyrric.model;
 
-import java.util.List;
-
 /**
  * Created on 2020-07-23.
  * 疫苗列表
@@ -9,7 +7,7 @@ import java.util.List;
  */
 public class VaccineList {
 
-    private String code;
+    private Integer id;
     /**
      * 医院名称
      */
@@ -19,79 +17,32 @@ public class VaccineList {
      */
     private String address;
     /**
-     * 疫苗信息（一般就一条记录）
+     * 疫苗代码
      */
-    private List<Vaccine> vaccines;
-
+    private String vaccineCode;
     /**
-     * 疫苗信息
+     * 疫苗名称
      */
-    public static class Vaccine{
-        private String code;
-        /**
-         * 疫苗名称
-         */
-        private String name;
-        /**
-         * 疫苗ID
-         */
-        private Integer id;
-        /**
-         * 开抢时间
-         */
-        private String subDateStart;
-        /**
-         * 是否是秒杀？
-         */
-        private Integer isSeckill;
+    private String vaccineName;
+    /**
+     * 秒杀时间
+     */
+    private String startTime;
 
-        public String getCode() {
-            return code;
-        }
-
-        public void setCode(String code) {
-            this.code = code;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Integer getId() {
-            return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        public String getSubDateStart() {
-            return subDateStart;
-        }
-
-        public void setSubDateStart(String subDateStart) {
-            this.subDateStart = subDateStart;
-        }
-
-        public Integer getIsSeckill() {
-            return isSeckill;
-        }
-
-        public void setIsSeckill(Integer isSeckill) {
-            this.isSeckill = isSeckill;
-        }
+    public Integer getId() {
+        return id;
     }
 
-    public String getCode() {
-        return code;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public String getVaccineCode() {
+        return vaccineCode;
+    }
+
+    public void setVaccineCode(String vaccineCode) {
+        this.vaccineCode = vaccineCode;
     }
 
     public String getName() {
@@ -110,11 +61,19 @@ public class VaccineList {
         this.address = address;
     }
 
-    public List<Vaccine> getVaccines() {
-        return vaccines;
+    public String getVaccineName() {
+        return vaccineName;
     }
 
-    public void setVaccines(List<Vaccine> vaccines) {
-        this.vaccines = vaccines;
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setVaccineName(String vaccineName) {
+        this.vaccineName = vaccineName;
     }
 }

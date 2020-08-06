@@ -28,15 +28,15 @@ public class MainFrame extends JFrame {
     /**
      * 验证码64
      */
-    private String captureBase64;
+    //private String captureBase64;
     /**
      * 疫苗列表
      */
     private List<VaccineList> vaccines;
 
 
-    JTextField codeField;
-    JLabel codeImage;
+//    JTextField codeField;
+//    JLabel codeImage;
     JButton startBtn;
 
     JButton setCookieBtn;
@@ -53,7 +53,7 @@ public class MainFrame extends JFrame {
     public MainFrame() {
         setLayout(null);
         setTitle("Just For Fun");
-        setBounds(500 , 500, 540, 360);
+        setBounds(500 , 500, 680, 340);
         init();
         setLocationRelativeTo(null);
         setVisible(true);
@@ -62,7 +62,7 @@ public class MainFrame extends JFrame {
     }
 
     private void init(){
-        codeImage = new JLabel("点击加载验证码");
+/*        codeImage = new JLabel("点击加载验证码");
         codeImage.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -70,7 +70,7 @@ public class MainFrame extends JFrame {
                 refreshImage();
             }
         });
-        codeField = new JTextField("");
+        codeField = new JTextField("");*/
         startBtn = new JButton("开始");
         startBtn.addActionListener(e -> {
            start();
@@ -107,28 +107,32 @@ public class MainFrame extends JFrame {
         note = new JTextArea();
         note.append("日记记录：\r\n");
         note.setEditable(false);
+        note.setAutoscrolls(true);
+        note.setLineWrap(true);
+        JScrollPane scroll = new JScrollPane(note);
+        scroll.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        String[] columnNames = { "id", "医院名称","秒杀时间" };
+        String[] columnNames = { "id", "疫苗名称","医院名称","秒杀时间" };
         tableModel = new TableModel(new String[0][], columnNames);
         vaccinesTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(vaccinesTable);
 
-        scrollPane.setBounds(10,10,360,200);
+        scrollPane.setBounds(10,10,460,200);
 
-        codeImage.setBounds(20, 225, 100, 40);
-        codeField.setBounds(180, 230, 60, 30);
-        startBtn.setBounds(260, 230, 100, 30);
+//        codeImage.setBounds(20, 225, 100, 40);
+//        codeField.setBounds(180, 230, 60, 30);
+        startBtn.setBounds(370, 230, 100, 30);
 
-        setCookieBtn.setBounds(20, 280, 100, 30);
-        setMemberBtn.setBounds(130, 280, 100, 30);
-        refreshBtn.setBounds(240, 280,120, 30);
+        setCookieBtn.setBounds(20, 230, 100, 30);
+        setMemberBtn.setBounds(130, 230, 100, 30);
+        refreshBtn.setBounds(240, 230,120, 30);
 
-        note.setBounds(380, 10, 120, 300);
+        scroll.setBounds(480, 10, 180, 280);
 
-        add(note);
         add(scrollPane);
-        add(codeImage);
-        add(codeField);
+        add(scroll);
+//        add(codeImage);
+//        add(codeField);
         add(startBtn);
         add(setCookieBtn);
         add(setMemberBtn);
@@ -140,14 +144,14 @@ public class MainFrame extends JFrame {
     private void refreshVaccines(){
         try {
             vaccines = service.getVaccines();
-            vaccinesTable.removeAll();
+            ((DefaultTableModel)vaccinesTable.getModel()).getDataVector().clear();   //清除表格数据
+            ((DefaultTableModel)vaccinesTable.getModel()).fireTableDataChanged();//通知模型更新
+            vaccinesTable.updateUI();//刷新表
             if(vaccines != null && !vaccines.isEmpty()){
-                for (VaccineList hospital : vaccines) {
-                    List<VaccineList.Vaccine> list = hospital.getVaccines();
-                    for (VaccineList.Vaccine t : list) {
-                        String[] item = { t.getId().toString(), hospital.getName(),t.getSubDateStart() };
-                        tableModel.addRow(item);
-                    }
+                for (VaccineList t : vaccines) {
+                    String[] item = { t.getId().toString(), t.getVaccineName(),t.getName() ,t.getStartTime()};
+                    tableModel.addRow(item);
+
                 }
             }
         } catch (IOException e) {
@@ -166,35 +170,35 @@ public class MainFrame extends JFrame {
             appendMsg("请选择要抢购的疫苗");
             return ;
         }
-        if(StringUtils.isEmpty(codeField.getText())){
-            appendMsg("请先输入验证码");
-            return ;
-        }
+//        if(StringUtils.isEmpty(codeField.getText())){
+//            appendMsg("请先输入验证码");
+//            return ;
+//        }
         Integer id = Integer.parseInt(tableModel.getValueAt(vaccinesTable.getSelectedRow(), 0).toString());
         new Thread(()->{
             startBtn.setEnabled(false);
             appendMsg("任务进行中");
-            boolean b = service.startSecKill(codeField.getText(), id);
+            boolean b = service.startSecKill(id);
             appendMsg("任务结束: "+ (b?"秒杀成功":"秒杀失败"));
             startBtn.setEnabled(true);
         }).start();
 
     }
-    private void refreshImage(){
-        try {
-            captureBase64  = service.getCapture();
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte[] bytes = decoder.decodeBuffer(captureBase64);
-            ImageIcon image = new ImageIcon(bytes);
-            ImageIcon imageIcon = new ImageIcon(image.getImage().getScaledInstance(100, 50, Image.SCALE_DEFAULT));
-            codeImage.setIcon(imageIcon);
-            codeImage.setText("");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (BusinessException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage(),"提示", JOptionPane.PLAIN_MESSAGE);
-        }
-    }
+//    private void refreshImage(){
+//        try {
+//            captureBase64  = service.getCapture();
+//            BASE64Decoder decoder = new BASE64Decoder();
+//            byte[] bytes = decoder.decodeBuffer(captureBase64);
+//            ImageIcon image = new ImageIcon(bytes);
+//            ImageIcon imageIcon = new ImageIcon(image.getImage().getScaledInstance(100, 50, Image.SCALE_DEFAULT));
+//            codeImage.setIcon(imageIcon);
+//            codeImage.setText("");
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        } catch (BusinessException ex) {
+//            JOptionPane.showMessageDialog(null, ex.getMessage(),"提示", JOptionPane.PLAIN_MESSAGE);
+//        }
+//    }
 
     private void appendMsg(String message){
         note.append(message);

@@ -87,6 +87,7 @@ public class MemberDialog extends JDialog {
             return ;
         }
         Config.memberId = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+        Config.idCard = table.getValueAt(table.getSelectedRow(), 2).toString();
         success = true;
         this.dispose();
     }

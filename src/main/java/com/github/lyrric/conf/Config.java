@@ -13,25 +13,27 @@ public class Config {
      * 微信配置
      */
     public static String cookies = "";
-    public static String st = "";
     public static String tk = "";
 
-    public static String reqHeader = "GET https://wx.healthych.com/order/linkman/findByUserId.do HTTP/1.1\n" +
-            "Host: wx.healthych.com\n" +
+    public static String reqHeader = "GET https://miaomiao.scmttec.com/seckill/seckill/list.do?offset=0&limit=10&regionCode=5101 HTTP/1.1\n" +
+            "Host: miaomiao.scmttec.com\n" +
             "Connection: keep-alive\n" +
-            "Accept: application/json, text/plain, */*\n" +
-            "tk: wxtoken:e0963da6b3e544ee2996a3273\n" +
-            "User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36 QBCore/4.0.1295.400 QQBrowser/9.0.2524.400 Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2875.116 Safari/537.36 NetType/WIFI MicroMessenger/7.0.5 WindowsWechat\n" +
-            "st: 3ce5985752bc1a0a1\n" +
-            "Referer: https://wx.healthych.com/index.html\n" +
-            "Accept-Encoding: gzip, deflate\n" +
-            "Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.5;q=0.4\n" +
-            "Cookie: _xzkj_=wxtoken:e0963da6b22%2" +
-            "\n";
+            "accept: application/json, text/plain, */*\n" +
+            "tk: wxapptoken:10:56ce094dc57cd7a85\n" +
+            "cookie: _xxhm_=%7B%22headerImg%22%3A%22%22%" +
+            "charset: utf-8\n" +
+            "x-requested-with: XMLHttpRequest\n" +
+            "content-type: application/json\n" +
+            "User-Agent: Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/1042 MicroMessenger/7.0.15.1680(0x27000F34) Process/appbrand0 WeChat/arm32 NetType/WIFI Language/zh_CN ABI/arm32\n" +
+            "Accept-Encoding: gzip,compress,br,deflate\n" +
+            "Referer: https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html\n";
 
     /**
      * 接种成员ID
      */
     public static Integer memberId;
-
+    /**
+     * 接种成员身份证号码
+     */
+    public static String idCard;
 }

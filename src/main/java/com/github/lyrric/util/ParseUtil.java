@@ -16,24 +16,19 @@ public class ParseUtil {
         reqHeader = reqHeader.replaceAll("\n", "");
         reqHeader = reqHeader.replaceAll("Host:", "");
         int start = reqHeader.indexOf("tk:");
-        int end = reqHeader.indexOf("User-Agent", start);
+        int end = reqHeader.indexOf("cookie:", start);
         if(start == -1 || end == -1){
             return false;
         }
         Config.tk  = reqHeader.substring(start+"tk:".length(), end);
-        start = reqHeader.indexOf("st:");
-        end = reqHeader.indexOf("Referer:", start);
+        start = reqHeader.indexOf("cookie:");
+        end = reqHeader.indexOf("charset:", start);
         if(start == -1 || end == -1){
             return false;
         }
-        Config.st  = reqHeader.substring(start+"st:".length(), end);
-        start = reqHeader.indexOf("Cookie:");
-        if(start == -1){
-            return false;
-        }
-        Config.cookies  = reqHeader.substring(start+"Cookie:".length());
+        Config.cookies  = reqHeader.substring(start+"cookie:".length(), end);
         try {
-            new HttpService().getCapture();
+            //new HttpService().getCapture();
         } catch (Exception e) {
             return false;
         }
