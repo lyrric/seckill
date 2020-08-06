@@ -68,7 +68,7 @@ public class HttpService {
      * @throws BusinessException
      */
     public String secKill(String seckillId, String vaccineIndex, String linkmanId, String idCard) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/seckill/vaccine/subscribe.do";
+        String path = baseUrl+"/seckill/seckill/subscribe.do";
         Map<String, String> params = new HashMap<>();
         params.put("seckillId", seckillId);
         params.put("vaccineIndex", vaccineIndex);
@@ -173,7 +173,11 @@ public class HttpService {
             params.forEach((key,value)->{
                 paramStr.append(key).append("=").append(value).append("&");
             });
-            path = path+paramStr.toString();
+            String t = paramStr.toString();
+            if(t.endsWith("&")){
+                t = t.substring(0, t.length()-1);
+            }
+            path+=t;
         }
         HttpGet get = new HttpGet(path);
         get.setHeaders(getCommonHeader());
@@ -192,7 +196,7 @@ public class HttpService {
     private Header[] getCommonHeader(){
         List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/1042 MicroMessenger/7.0.15.1680(0x27000F34) Process/appbrand0 WeChat/arm32 NetType/WIFI Language/zh_CN ABI/arm32"));
-        headers.add(new BasicHeader("Referer", "https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html\n"));
+        headers.add(new BasicHeader("Referer", "https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html"));
         headers.add(new BasicHeader("tk", Config.tk));
         headers.add(new BasicHeader("Accept","application/json, text/plain, */*"));
         headers.add(new BasicHeader("Host","miaomiao.scmttec.com"));

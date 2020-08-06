@@ -43,7 +43,7 @@ public class SecKillService {
     public boolean startSecKill(Integer vaccineId) {
         AtomicBoolean success = new AtomicBoolean(false);
         AtomicReference<String> orderId = new AtomicReference<>(null);
-        //Runnable task = ()-> {
+        Runnable task = ()-> {
             do {
                 try {
                     //1.直接秒杀、获取秒杀资格
@@ -75,24 +75,23 @@ public class SecKillService {
                     });
                 } catch (BusinessException e) {
                     System.out.println(e.getErrMsg());
-                    e.printStackTrace();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } while (orderId.get() == null);
-        //};
+        };
 
-/*        for (int i = 0; i < 10; i++) {
-            executorService.submit(task);
+        for (int i = 0; i < 10; i++) {
+            new Thread(task).start();
         }
 
-        executorService.shutdown();
-        //等待线程结束
-        try {
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
+//        executorService.shutdown();
+//        //等待线程结束
+//        try {
+//            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         return success.get();
     }
 
