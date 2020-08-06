@@ -68,7 +68,7 @@ public class HttpService {
      * @throws BusinessException
      */
     public String secKill(String seckillId, String vaccineIndex, String linkmanId, String idCard) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/vaccine/subscribe.do";
+        String path = baseUrl+"/seckill/seckill/vaccine/subscribe.do";
         Map<String, String> params = new HashMap<>();
         params.put("seckillId", seckillId);
         params.put("vaccineIndex", vaccineIndex);
@@ -83,7 +83,7 @@ public class HttpService {
      * @param orderId 订单ID
      */
     public List<SubDate> getSkSubDays(String vaccineId, String orderId) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/subscribeDays.do";
+        String path = baseUrl+"/seckill/seckill/subscribeDays.do";
         Map<String, String> params = new HashMap<>();
         params.put("seckillId", vaccineId);
         params.put("vaccineIndex", orderId);
@@ -102,7 +102,7 @@ public class HttpService {
      * @throws BusinessException
      */
     public List<SubDateTime> getSkSubDayTime(String vaccineId, String orderId, String day) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/dayTimes.do";
+        String path = baseUrl+"/seckill/seckill/dayTimes.do";
         Map<String, String> params = new HashMap<>();
         params.put("id", vaccineId);
         params.put("sid", orderId);
@@ -122,7 +122,7 @@ public class HttpService {
      * @throws BusinessException
      */
     public void subDayTime(String vaccineId, String orderId, String day, String wid) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/submitDateTime.do";
+        String path = baseUrl+"/seckill/seckill/submitDateTime.do";
         Map<String, String> params = new HashMap<>();
         params.put("id", vaccineId);
         params.put("sid", orderId);
