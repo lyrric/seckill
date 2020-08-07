@@ -1,24 +1,18 @@
 package com.github.lyrric.service;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.*;
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,26 +30,7 @@ public class HttpService {
 
     private String baseUrl = "https://miaomiao.scmttec.com";
 
-    /**
-     * 获取疫苗信息
-     */
-//    public VaccineDetail getVaccineDetail(Integer id) throws IOException, BusinessException {
-//        hasAvailableConfig();
-//        String path = baseUrl + "/seckill/vaccine/detailVo.do?id="+id.toString();
-//        String s = get(path, new HashMap<>());
-//        System.out.println(s);
-//        return JSONObject.parseObject(s, VaccineDetail.class);
-//    }
-
-    /**
-     * 获取验证码
-     */
-//    public String getCapture() throws IOException, BusinessException {
-//        hasAvailableConfig();
-//        String path = baseUrl+"/seckill/validateCode/vcode.do";
-//        return get(path, null);
-//    }
-
+    private final Logger logger = LogManager.getLogger(HttpService.class);
 
     /***
      * 获取秒杀资格
@@ -88,7 +63,7 @@ public class HttpService {
         params.put("seckillId", vaccineId);
         params.put("vaccineIndex", orderId);
         String json =  get(path, params);
-        System.out.println("日期格式"+json);
+        logger.info("日期格式:{}", json);
         return JSONObject.parseArray(json).toJavaList(SubDate.class);
     }
 
@@ -129,7 +104,7 @@ public class HttpService {
         params.put("day", day);
         params.put("wid", wid);
         String json =  get(path, params);
-        System.out.println("提交接种时间，返回数据"+json);
+        logger.info("提交接种时间，返回数据: {}", json);
     }
 
 
@@ -188,7 +163,6 @@ public class HttpService {
         if("0000".equals(jsonObject.get("code"))){
             return jsonObject.getString("data");
         }else{
-            System.out.println(json);
             throw new BusinessException(jsonObject.getString("code"), jsonObject.getString("msg"));
         }
     }

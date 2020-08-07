@@ -48,11 +48,11 @@ public class SecKillService {
     public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException, InterruptedException {
         long startDate = convertDateToInt(startDateStr);
         long now = System.currentTimeMillis();
-        if(now+5000 < startDate){
-            logger.info("距离开始时间大于5秒，等待中......");
-            Thread.sleep(startDate-now-5000);
+        if(now + 1000 < startDate){
+            logger.info("距离开始时间大于1秒，等待中......");
+            Thread.sleep(startDate-now-1000);
         }
-        logger.info("###########开始抢购###########");
+        logger.info("###########开始秒杀###########");
         AtomicBoolean success = new AtomicBoolean(false);
         AtomicReference<String> orderId = new AtomicReference<>(null);
         Runnable task = ()-> {
@@ -101,12 +101,13 @@ public class SecKillService {
                     }
                 } catch (BusinessException e) {
                     logger.info("抢购失败: {}",e.getErrMsg());
-                    //如果离开始时间六十秒后，都没有抢到，则判定失败
-                    if(System.currentTimeMillis() > startDate+1000*60){
+                    //如果离开始时间30秒后，都没有抢到，则判定失败
+                    if(System.currentTimeMillis() > startDate+1000*30){
                         return;
                     }
                 } catch (Exception e) {
-                    logger.warn("未知异常：", e.getCause());
+                    e.printStackTrace();
+                    logger.warn("未知异常：");
                 }
             } while (orderId.get() == null);
         };
@@ -121,6 +122,7 @@ public class SecKillService {
             service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
             if(success.get()){
                 mainFrame.appendMsg("抢购成功，请登录约苗小程序查看");
+                logger.info("抢购成功，请登录约苗小程序查看");
             }else{
                 mainFrame.appendMsg("抢购失败");
             }
