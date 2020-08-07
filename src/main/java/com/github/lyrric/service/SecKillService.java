@@ -45,8 +45,14 @@ public class SecKillService {
      * 多线程秒杀开启
      */
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
-    public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException {
+    public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException, InterruptedException {
         long startDate = convertDateToInt(startDateStr);
+        long now = System.currentTimeMillis();
+        if(now+5000 < startDate){
+            logger.info("距离开始时间大于5秒，等待中......");
+            Thread.sleep(startDate-now-5000);
+        }
+        logger.info("###########开始抢购###########");
         AtomicBoolean success = new AtomicBoolean(false);
         AtomicReference<String> orderId = new AtomicReference<>(null);
         Runnable task = ()-> {

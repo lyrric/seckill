@@ -154,8 +154,9 @@ public class MainFrame extends JFrame {
         new Thread(()->{
             try {
                 service.startSecKill(id, startTime, this);
-            } catch (ParseException e) {
+            } catch (ParseException | InterruptedException e) {
                 appendMsg("解析开始时间失败");
+                e.printStackTrace();
             }
         }).start();
 
