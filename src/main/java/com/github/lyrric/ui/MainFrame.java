@@ -6,14 +6,12 @@ import com.github.lyrric.model.TableModel;
 import com.github.lyrric.model.VaccineList;
 import com.github.lyrric.service.SecKillService;
 import org.apache.commons.lang3.StringUtils;
-import sun.misc.BASE64Decoder;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -24,19 +22,11 @@ import java.util.List;
 public class MainFrame extends JFrame {
 
     SecKillService service = new SecKillService();
-
-    /**
-     * 验证码64
-     */
-    //private String captureBase64;
     /**
      * 疫苗列表
      */
     private List<VaccineList> vaccines;
 
-
-//    JTextField codeField;
-//    JLabel codeImage;
     JButton startBtn;
 
     JButton setCookieBtn;
@@ -62,19 +52,8 @@ public class MainFrame extends JFrame {
     }
 
     private void init(){
-/*        codeImage = new JLabel("点击加载验证码");
-        codeImage.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                refreshImage();
-            }
-        });
-        codeField = new JTextField("");*/
         startBtn = new JButton("开始");
-        startBtn.addActionListener(e -> {
-           start();
-        });
+        startBtn.addActionListener(e -> start());
 
         setCookieBtn = new JButton("设置Cookie");
         setCookieBtn.addActionListener((e)->{
@@ -119,8 +98,6 @@ public class MainFrame extends JFrame {
 
         scrollPane.setBounds(10,10,460,200);
 
-//        codeImage.setBounds(20, 225, 100, 40);
-//        codeField.setBounds(180, 230, 60, 30);
         startBtn.setBounds(370, 230, 100, 30);
 
         setCookieBtn.setBounds(20, 230, 100, 30);
@@ -131,8 +108,6 @@ public class MainFrame extends JFrame {
 
         add(scrollPane);
         add(scroll);
-//        add(codeImage);
-//        add(codeField);
         add(startBtn);
         add(setCookieBtn);
         add(setMemberBtn);
@@ -144,8 +119,10 @@ public class MainFrame extends JFrame {
     private void refreshVaccines(){
         try {
             vaccines = service.getVaccines();
-            ((DefaultTableModel)vaccinesTable.getModel()).getDataVector().clear();   //清除表格数据
-            ((DefaultTableModel)vaccinesTable.getModel()).fireTableDataChanged();//通知模型更新
+            //清除表格数据
+            //通知模型更新
+            ((DefaultTableModel)vaccinesTable.getModel()).getDataVector().clear();
+            ((DefaultTableModel)vaccinesTable.getModel()).fireTableDataChanged();
             vaccinesTable.updateUI();//刷新表
             if(vaccines != null && !vaccines.isEmpty()){
                 for (VaccineList t : vaccines) {
@@ -170,37 +147,22 @@ public class MainFrame extends JFrame {
             appendMsg("请选择要抢购的疫苗");
             return ;
         }
-//        if(StringUtils.isEmpty(codeField.getText())){
-//            appendMsg("请先输入验证码");
-//            return ;
-//        }
-        Integer id = Integer.parseInt(tableModel.getValueAt(vaccinesTable.getSelectedRow(), 0).toString());
+
+        int selectedRow = vaccinesTable.getSelectedRow();
+        Integer id = vaccines.get(selectedRow).getId();
+        String startTime = vaccines.get(selectedRow).getStartTime();
         new Thread(()->{
-            startBtn.setEnabled(false);
-            appendMsg("任务进行中");
-            boolean b = service.startSecKill(id);
-            appendMsg("任务结束: "+ (b?"秒杀成功":"秒杀失败"));
-            startBtn.setEnabled(true);
+            try {
+                service.startSecKill(id, startTime, this);
+            } catch (ParseException e) {
+                appendMsg("解析开始时间失败");
+            }
         }).start();
 
     }
-//    private void refreshImage(){
-//        try {
-//            captureBase64  = service.getCapture();
-//            BASE64Decoder decoder = new BASE64Decoder();
-//            byte[] bytes = decoder.decodeBuffer(captureBase64);
-//            ImageIcon image = new ImageIcon(bytes);
-//            ImageIcon imageIcon = new ImageIcon(image.getImage().getScaledInstance(100, 50, Image.SCALE_DEFAULT));
-//            codeImage.setIcon(imageIcon);
-//            codeImage.setText("");
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        } catch (BusinessException ex) {
-//            JOptionPane.showMessageDialog(null, ex.getMessage(),"提示", JOptionPane.PLAIN_MESSAGE);
-//        }
-//    }
 
-    private void appendMsg(String message){
+
+    public void appendMsg(String message){
         note.append(message);
         note.append("\r\n");
     }

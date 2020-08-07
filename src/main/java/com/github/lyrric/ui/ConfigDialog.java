@@ -15,7 +15,11 @@ public class ConfigDialog extends JDialog {
 
     JButton submit;
 
-    JTextArea jTextArea;
+    JButton parse;
+    JTextArea reqHeader;
+
+    JTextField cookie;
+    JTextField tk;
 
     Frame owner;
 
@@ -29,20 +33,53 @@ public class ConfigDialog extends JDialog {
     public void init(){
         this.setLayout(null);
         this.setTitle("请输入抓包的请求头.....");
-        jTextArea = new JTextArea();
-        jTextArea.setBounds(20,10,400,300);
-        jTextArea.setText(Config.reqHeader);
-        submit = new JButton("验证并保存");
-        submit.setBounds(180, 320, 100, 40);
+        reqHeader = new JTextArea();
+        reqHeader.setBounds(20,10,400,200);
+        reqHeader.setText(Config.reqHeader);
+
+        JLabel tkLabel = new JLabel("tk：");
+        tkLabel.setBounds(10, 230, 60, 25);
+        this.add(tkLabel);
+        tk = new JTextField();
+        tk.setBounds(70, 230, 350, 25);
+        this.add(tk);
+
+        JLabel cookieLabel = new JLabel("cookie：");
+        cookieLabel.setBounds(10, 270, 60, 25);
+        this.add(cookieLabel);
+        cookie = new JTextField();
+        cookie.setBounds(70, 270, 350, 25);
+        this.add(cookie);
+
+
+        submit = new JButton("保存");
+        submit.setBounds(280, 320, 100, 40);
         submit.addActionListener(e -> {
-            if(jTextArea.getText().isEmpty() || !ParseUtil.parseHeader(jTextArea.getText())){
-                JOptionPane.showMessageDialog(this, "数据格式错误或登录过期","提示", JOptionPane.PLAIN_MESSAGE);
+            if(cookie.getText().isEmpty() || tk.getText().isEmpty()){
+                JOptionPane.showMessageDialog(this, "请输入tk和cookie","提示", JOptionPane.PLAIN_MESSAGE);
             }else{
+                Config.reqHeader = reqHeader.getText();
+                Config.tk = tk.getText();
+                Config.cookies = cookie.getText();
                 success = true;
                 this.dispose();
             }
         });
-        this.add(jTextArea);
+
+        parse = new JButton("解析");
+        parse.setBounds(20, 320, 100, 40);
+        parse.addActionListener(e -> {
+            String[] data = ParseUtil.parseHeader(reqHeader.getText());
+            if(data == null){
+                JOptionPane.showMessageDialog(this, "数据格式错误或登录过期","提示", JOptionPane.PLAIN_MESSAGE);
+            }else{
+                tk.setText(data[0]);
+                cookie.setText(data[1]);
+            }
+        });
+        this.add(parse);
+
+        this.add(reqHeader);
         this.add(submit);
         this.setVisible(false);
         this.setBounds(500, 500, 460, 400);
