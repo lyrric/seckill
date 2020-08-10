@@ -32,6 +32,7 @@ public class HttpService {
 
     private final Logger logger = LogManager.getLogger(HttpService.class);
 
+
     /***
      * 获取秒杀资格
      * @param seckillId 疫苗ID
