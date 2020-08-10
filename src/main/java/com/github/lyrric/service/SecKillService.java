@@ -35,7 +35,7 @@ public class SecKillService {
 
     private final Logger logger = LogManager.getLogger(SecKillService.class);
 
-    private ExecutorService service = Executors.newFixedThreadPool(50);
+    private ExecutorService service = Executors.newFixedThreadPool(100);
 
     public SecKillService() {
         httpService = new HttpService();
@@ -47,58 +47,15 @@ public class SecKillService {
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException, InterruptedException {
         long startDate = convertDateToInt(startDateStr);
-        long now = System.currentTimeMillis();
-        if(now + 1000 < startDate){
-            logger.info("距离开始时间大于1秒，等待中......");
-            Thread.sleep(startDate-now-1000);
-        }
-        logger.info("###########开始秒杀###########");
+
         AtomicBoolean success = new AtomicBoolean(false);
         AtomicReference<String> orderId = new AtomicReference<>(null);
         Runnable task = ()-> {
             do {
                 try {
-                    List<SubDate> skSubDays = null;
                     //1.直接秒杀、获取秒杀资格
                     orderId.set(httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(), Config.idCard));
-                    do {
-                        try {
-                            //2.秒杀成功后，获取接种日期
-                            skSubDays = httpService.getSkSubDays(vaccineId.toString(), orderId.get());
-                        } catch (BusinessException e) {
-                            logger.info("获取接种日期，失败: {}",e.getErrMsg());
-                        } catch (IOException e) {
-                            logger.warn("获取接种日期，未知异常：", e.getCause());
-                        }
-                    } while (skSubDays == null);
-
-                    for (SubDate day : skSubDays) {
-                        Runnable getTimeTask = () -> {
-                            try {
-                                //3.根据接种日期，获取接种时间段
-                                List<SubDateTime> skSubDayTime = httpService.getSkSubDayTime(vaccineId.toString(), orderId.toString(), day.getDay());
-                                for (SubDateTime time : skSubDayTime) {
-                                    //4.提交接种时间
-                                    Runnable subDayTimeTask = () -> {
-                                        try {
-                                            httpService.subDayTime(vaccineId.toString(), orderId.get(), day.getDay(), time.getWid());
-                                            success.set(true);
-                                        } catch (BusinessException e) {
-                                            logger.info("提交接种时间，失败: {}",e.getErrMsg());
-                                        } catch (IOException e) {
-                                            logger.warn("提交接种时间，未知异常：", e.getCause());
-                                        }
-                                    };
-                                    service.submit(subDayTimeTask);
-                                }
-                            } catch (BusinessException e) {
-                                logger.info("获取接种时间段，失败: {}",e.getErrMsg());
-                            } catch (IOException e) {
-                                logger.warn("获取接种时间段，未知异常：", e.getCause());
-                            }
-                        };
-                        service.submit(getTimeTask);
-                    }
+                    success.set(true);
                 } catch (BusinessException e) {
                     logger.info("抢购失败: {}",e.getErrMsg());
                     //如果离开始时间30秒后，都没有抢到，则判定失败
@@ -111,8 +68,28 @@ public class SecKillService {
                 }
             } while (orderId.get() == null);
         };
+        long now = System.currentTimeMillis();
+        if(now + 1000 < startDate){
+            logger.info("还未到开始时间，等待中......");
+            Thread.sleep(startDate-now-1000);
+        }
+        //如何保证能在秒杀时间点瞬间并发？
 
-        for (int i = 0; i < 10; i++) {
+        //提前200毫秒开始秒杀
+        do {
+            now = System.currentTimeMillis();
+        }while (now + 200 < startDate);
+        logger.info("###########第一波 开始秒杀###########");
+        for (int i = 0; i < 20; i++) {
+            service.submit(task);
+        }
+
+        //准点（提前20毫秒）秒杀
+        do {
+            now = System.currentTimeMillis();
+        }while (now + 20 < startDate);
+        logger.info("###########第二波 开始秒杀###########");
+        for (int i = 0; i < 30; i++) {
             service.submit(task);
         }
 
