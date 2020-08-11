@@ -6,7 +6,7 @@
 
 	<groupId>com.github.lyrric</groupId>
 	<artifactId>seckill</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0-RELEASE</version>
 
 	<dependencies>
 		<dependency>
@@ -31,4 +31,7 @@
 		</dependency>
 
 	</dependencies>
+	<build>
+		<finalName>sec-kill</finalName>
+	</build>
 </project>
