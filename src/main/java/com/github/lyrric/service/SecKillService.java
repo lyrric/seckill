@@ -94,6 +94,7 @@ public class SecKillService {
         }
 
         service.shutdown();
+        mainFrame.setStartBtnEnable();
         //等待线程结束
         try {
             service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);

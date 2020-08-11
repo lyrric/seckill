@@ -153,9 +153,11 @@ public class MainFrame extends JFrame {
         String startTime = vaccines.get(selectedRow).getStartTime();
         new Thread(()->{
             try {
+                startBtn.setEnabled(false);
                 service.startSecKill(id, startTime, this);
             } catch (ParseException | InterruptedException e) {
                 appendMsg("解析开始时间失败");
+                startBtn.setEnabled(true);
                 e.printStackTrace();
             }
         }).start();
@@ -166,5 +168,9 @@ public class MainFrame extends JFrame {
     public void appendMsg(String message){
         note.append(message);
         note.append("\r\n");
+    }
+
+    public void setStartBtnEnable(){
+        startBtn.setEnabled(true);
     }
 }
