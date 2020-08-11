@@ -71,7 +71,7 @@ public class ConfigDialog extends JDialog {
         parse.addActionListener(e -> {
             String[] data = ParseUtil.parseHeader(reqHeader.getText());
             if(data == null){
-                JOptionPane.showMessageDialog(this, "数据格式错误或登录过期","提示", JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.showMessageDialog(this, "数据格式错误","提示", JOptionPane.PLAIN_MESSAGE);
             }else{
                 tk.setText(data[0]);
                 cookie.setText(data[1]);
