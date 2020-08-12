@@ -58,8 +58,8 @@ public class SecKillService {
                     success.set(true);
                 } catch (BusinessException e) {
                     logger.info("抢购失败: {}",e.getErrMsg());
-                    //如果离开始时间30秒后，都没有抢到，则判定失败
-                    if(System.currentTimeMillis() > startDate+1000*30){
+                    //如果离开始时间30秒后，或者已经成功抢到则不再继续
+                    if(System.currentTimeMillis() > startDate+1000*30 || success.get()){
                         return;
                     }
                 } catch (Exception e) {
