@@ -53,6 +53,7 @@ public class MainFrame extends JFrame {
 
     private void init(){
         startBtn = new JButton("开始");
+        startBtn.setEnabled(false);
         startBtn.addActionListener(e -> start());
 
         setCookieBtn = new JButton("设置Cookie");
@@ -62,12 +63,15 @@ public class MainFrame extends JFrame {
             dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
             dialog.setVisible(true);
             if(dialog.success()){
+                setMemberBtn.setEnabled(true);
+                startBtn.setEnabled(true);
+                refreshBtn.setEnabled(true);
                 appendMsg("设置cookie成功");
             }
 
         });
-
         setMemberBtn = new JButton("选择成员");
+        setMemberBtn.setEnabled(false);
         setMemberBtn.addActionListener((e)->{
             MemberDialog dialog = new MemberDialog(this);
             dialog.setModal(true);
@@ -79,6 +83,7 @@ public class MainFrame extends JFrame {
         });
 
         refreshBtn = new JButton("刷新疫苗列表");
+        refreshBtn.setEnabled(false);
         refreshBtn.addActionListener((e)->{
             refreshVaccines();
         });
@@ -153,9 +158,11 @@ public class MainFrame extends JFrame {
         String startTime = vaccines.get(selectedRow).getStartTime();
         new Thread(()->{
             try {
+                startBtn.setEnabled(false);
                 service.startSecKill(id, startTime, this);
             } catch (ParseException | InterruptedException e) {
                 appendMsg("解析开始时间失败");
+                startBtn.setEnabled(true);
                 e.printStackTrace();
             }
         }).start();
@@ -166,5 +173,9 @@ public class MainFrame extends JFrame {
     public void appendMsg(String message){
         note.append(message);
         note.append("\r\n");
+    }
+
+    public void setStartBtnEnable(){
+        startBtn.setEnabled(true);
     }
 }

@@ -16,21 +16,21 @@ public class ParseUtil {
             return null;
         }
         String[] data = new String[2];
-        reqHeader = reqHeader.replaceAll(" ", "");
-        reqHeader = reqHeader.replaceAll("\n", "");
-        reqHeader = reqHeader.replaceAll("Host:", "");
-        int start = reqHeader.indexOf("tk:");
-        int end = reqHeader.indexOf("cookie:", start);
+        reqHeader = reqHeader.replaceAll("cookie: ", "Cookie: ");
+//        reqHeader = reqHeader.replaceAll("\n", "");
+//        reqHeader = reqHeader.replaceAll("Host:", "");
+        int start = reqHeader.indexOf("tk: ");
+        int end = reqHeader.indexOf("\n", start);
         if(start == -1 || end == -1){
             return null;
         }
-        data[0]  = reqHeader.substring(start+"tk:".length(), end);
-        start = reqHeader.indexOf("cookie:");
-        end = reqHeader.indexOf("charset:", start);
+        data[0]  = reqHeader.substring(start+"tk: ".length(), end);
+        start = reqHeader.indexOf("Cookie: ");
+        end = reqHeader.indexOf("\n", start);
         if(start == -1 || end == -1){
             return null;
         }
-       data[1]  = reqHeader.substring(start+"cookie:".length(), end);
+       data[1]  = reqHeader.substring(start+"Cookie: ".length(), end);
 
         return data;
     }
