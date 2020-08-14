@@ -54,7 +54,7 @@ public class SecKillService {
                 } catch (BusinessException e) {
                     logger.info("抢购失败: {}",e.getErrMsg());
                     //如果离开始时间30秒后，或者已经成功抢到则不再继续
-                    if(System.currentTimeMillis() > startDate+1000*30 || success.get()){
+                    if(System.currentTimeMillis() > startDate+1000*10 || success.get()){
                         return;
                     }
                 } catch (Exception e) {
@@ -75,7 +75,7 @@ public class SecKillService {
             now = System.currentTimeMillis();
         }while (now + 200 < startDate);
         logger.info("###########第一波 开始秒杀###########");
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             service.submit(task);
         }
 
@@ -84,7 +84,7 @@ public class SecKillService {
             now = System.currentTimeMillis();
         }while (now + 20 < startDate);
         logger.info("###########第二波 开始秒杀###########");
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 20; i++) {
             service.submit(task);
         }
 

@@ -158,7 +158,9 @@ public class MainFrame extends JFrame {
         String startTime = vaccines.get(selectedRow).getStartTime();
         new Thread(()->{
             try {
+                setCookieBtn.setEnabled(false);
                 startBtn.setEnabled(false);
+                setMemberBtn.setEnabled(false);
                 service.startSecKill(id, startTime, this);
             } catch (ParseException | InterruptedException e) {
                 appendMsg("解析开始时间失败");
@@ -176,6 +178,8 @@ public class MainFrame extends JFrame {
     }
 
     public void setStartBtnEnable(){
+        startBtn.setEnabled(true);
+        setCookieBtn.setEnabled(true);
         startBtn.setEnabled(true);
     }
 }

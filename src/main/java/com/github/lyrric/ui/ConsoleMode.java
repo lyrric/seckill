@@ -78,7 +78,7 @@ public class ConsoleMode {
                     success.set(true);
                 } catch (BusinessException e) {
                     log.info("抢购失败: {}",e.getErrMsg());
-                    //离开始时间10秒后，或者成功抢到之后，则返回
+                    //离开始时间10秒后，或者成功抢到之后，返回
                     if(System.currentTimeMillis() > startDate+1000*10 || success.get()){
                         return;
                     }
@@ -99,7 +99,7 @@ public class ConsoleMode {
             now = System.currentTimeMillis();
         }while (now + 200 < startDate);
         log.info("###########第一波 开始秒杀###########");
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             service.submit(task);
         }
 
@@ -108,7 +108,7 @@ public class ConsoleMode {
             now = System.currentTimeMillis();
         }while (now + 20 < startDate);
         log.info("###########第二波 开始秒杀###########");
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 20; i++) {
             service.submit(task);
         }
         service.shutdown();
@@ -118,7 +118,7 @@ public class ConsoleMode {
             if(success.get()){
                 log.info("抢购成功，请登录约苗小程序查看");
             }else{
-                log.info("抢购失败，请登录约苗小程序查看");
+                log.info("抢购失败");
             }
         } catch (InterruptedException e) {
             log.info("抢购失败:",e.getCause());
