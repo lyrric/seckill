@@ -70,21 +70,28 @@ public class SecKillService {
         }
         //如何保证能在秒杀时间点瞬间并发？
 
+        //提前500毫秒开始秒杀
+        do {
+            now = System.currentTimeMillis();
+        }while (now + 500 < startDate);
+        logger.info("###########第一波 开始秒杀###########");
+        for (int i = 0; i < 5; i++) {
+            service.submit(task);
+        }
         //提前200毫秒开始秒杀
         do {
             now = System.currentTimeMillis();
         }while (now + 200 < startDate);
-        logger.info("###########第一波 开始秒杀###########");
+        logger.info("###########第二波 开始秒杀###########");
         for (int i = 0; i < 10; i++) {
             service.submit(task);
         }
-
         //准点（提前20毫秒）秒杀
         do {
             now = System.currentTimeMillis();
         }while (now + 20 < startDate);
-        logger.info("###########第二波 开始秒杀###########");
-        for (int i = 0; i < 20; i++) {
+        logger.info("###########第三波 开始秒杀###########");
+        for (int i = 0; i < 10; i++) {
             service.submit(task);
         }
 
