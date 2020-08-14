@@ -5,7 +5,7 @@ package com.github.lyrric.model;
  *
  * @author wangxiaodong
  */
-public class BusinessException extends Exception {
+public class BusinessException extends RuntimeException {
 
     private String code;
 
