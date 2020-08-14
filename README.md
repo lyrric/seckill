@@ -2,7 +2,7 @@
 **共享资源，仅能用于学习，请勿用于商业。**  
 **Sharing of resources, can only be used for learning, not for business！！！**
 ## 更新日志
-- 2020.08.14 增加了控制台模式，通过java -jar sec-kill.jar -c 进入  
+- 2020.08.14 V1.1增加了控制台模式，通过java -jar sec-kill.jar -c 进入  
              优化了交互，减少了并发的数量避免操作频繁
 - 2020.08.11 优化了req-header的解析，目测可以万能解析；优化了交互
 - 2020.08.10 最终版，经测试已经成功抢到，不会添加新的功能了，不过后期还是会维护
