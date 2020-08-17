@@ -74,16 +74,20 @@ public class ConsoleMode {
             do {
                 try {
                     //1.直接秒杀、获取秒杀资格
+                    long id = Thread.currentThread().getId();
+                    log.info("Thread ID：{}，发送请求", id);
                     orderId.set(httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(), Config.idCard));
                     success.set(true);
+                    log.info("Thread ID：{}，抢购成功", id);
                 } catch (BusinessException e) {
-                    log.info("抢购失败: {}",e.getErrMsg());
-                    //离开始时间10秒后，或者成功抢到之后，返回
-                    if(System.currentTimeMillis() > startDate+1000*10 || success.get()){
+                    log.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
+                    //如果离开始时间30秒后，或者已经成功抢到则不再继续
+                    if(System.currentTimeMillis() > startDate+1000*30 || success.get()){
                         return;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    log.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());
                 }
             } while (orderId.get() == null);
         };

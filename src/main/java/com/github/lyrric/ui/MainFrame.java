@@ -78,7 +78,7 @@ public class MainFrame extends JFrame {
             dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
             dialog.setVisible(true);
             if(dialog.success()){
-                appendMsg("已设置成员");
+                appendMsg("已设置成员：" + Config.memberName);
             }
         });
 
@@ -164,7 +164,9 @@ public class MainFrame extends JFrame {
                 service.startSecKill(id, startTime, this);
             } catch (ParseException | InterruptedException e) {
                 appendMsg("解析开始时间失败");
+                setCookieBtn.setEnabled(true);
                 startBtn.setEnabled(true);
+                setMemberBtn.setEnabled(true);
                 e.printStackTrace();
             }
         }).start();

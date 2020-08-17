@@ -36,4 +36,9 @@ public class Config {
      * 接种成员身份证号码
      */
     public static String idCard;
+    /**
+     * 接种成员姓名
+     */
+    public static String memberName;
+
 }
