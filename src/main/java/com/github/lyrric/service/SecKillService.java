@@ -61,13 +61,13 @@ public class SecKillService {
                     if(System.currentTimeMillis() > startDate+1000*30 || success.get()){
                         return;
                     }
-                    if("操作过于频繁,请稍后再试!".equals(e.getErrMsg()) && new Random().nextBoolean()){
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
+//                    if("操作过于频繁,请稍后再试!".equals(e.getErrMsg()) && new Random().nextBoolean()){
+//                        try {
+//                            Thread.sleep(500);
+//                        } catch (InterruptedException ex) {
+//                            ex.printStackTrace();
+//                        }
+//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     logger.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());
@@ -86,7 +86,7 @@ public class SecKillService {
             now = System.currentTimeMillis();
         }while (now + 200 < startDate);
         logger.info("###########第二波 开始秒杀###########");
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 10; i++) {
             service.submit(task);
         }
         //准点（提前20毫秒）秒杀
@@ -94,7 +94,7 @@ public class SecKillService {
             now = System.currentTimeMillis();
         }while (now + 20 < startDate);
         logger.info("###########第三波 开始秒杀###########");
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 30; i++) {
             service.submit(task);
         }
 
