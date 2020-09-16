@@ -1,15 +1,19 @@
 package com.github.lyrric.ui;
 
 import com.github.lyrric.conf.Config;
+import com.github.lyrric.model.Area;
 import com.github.lyrric.model.BusinessException;
 import com.github.lyrric.model.TableModel;
 import com.github.lyrric.model.VaccineList;
 import com.github.lyrric.service.SecKillService;
+import com.github.lyrric.util.ParseUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
@@ -40,6 +44,12 @@ public class MainFrame extends JFrame {
     DefaultTableModel tableModel;
 
     JTextArea note;
+
+    JComboBox<Area> provinceBox;
+
+    JComboBox<Area> cityBox;
+
+
     public MainFrame() {
         setLayout(null);
         setTitle("Just For Fun");
@@ -101,6 +111,31 @@ public class MainFrame extends JFrame {
         vaccinesTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(vaccinesTable);
 
+        List<Area> areas = ParseUtil.getAreas();
+        provinceBox  = new JComboBox<>(areas.toArray(new Area[0]));
+        //itemListener
+        ItemListener itemListener = new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent arg0) {
+                if(ItemEvent.SELECTED == arg0.getStateChange()){
+                    String selectedItem = arg0.getItem().toString();
+                    cityBox.removeAllItems();
+                    List<Area> children = ParseUtil.getChildren(selectedItem);
+                    for (Area child : children) {
+                        cityBox.addItem(child);
+                    }
+                }
+
+            }
+        };
+        provinceBox.addItemListener(itemListener);
+        cityBox = new JComboBox<>();
+        provinceBox.setBounds(20, 275, 100, 20);
+        cityBox.setBounds(130, 275, 80, 20);
+
+        JButton setAreaBtn = new JButton("确定");
+        setAreaBtn.setBounds(220, 270, 80, 30);
+
         scrollPane.setBounds(10,10,460,200);
 
         startBtn.setBounds(370, 230, 100, 30);
@@ -117,6 +152,9 @@ public class MainFrame extends JFrame {
         add(setCookieBtn);
         add(setMemberBtn);
         add(refreshBtn);
+        add(provinceBox);
+        add(cityBox);
+        add(setAreaBtn);
     }
 
 

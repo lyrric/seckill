@@ -2,6 +2,8 @@ package com.github.lyrric.conf;
 
 import com.github.lyrric.model.Member;
 
+import java.util.List;
+
 /**
  * Created on 2020-07-23.
  *
@@ -40,5 +42,9 @@ public class Config {
      * 接种成员姓名
      */
     public static String memberName;
+    /**
+     * 选择的地区代码
+     */
+    public static String regionCode = "5101";
 
 }

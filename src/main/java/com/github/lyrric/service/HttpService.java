@@ -122,10 +122,11 @@ public class HttpService {
         param.put("offset", "0");
         param.put("limit", "100");
         //这个应该是成都的行政区划前四位
-        param.put("regionCode", "5101");
+        param.put("regionCode", Config.regionCode);
         String json = get(path, param);
         return JSONObject.parseArray(json).toJavaList(VaccineList.class);
     }
+
 
     /**
      * 获取接种人信息
