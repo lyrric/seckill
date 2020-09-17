@@ -118,9 +118,9 @@ public class MainFrame extends JFrame {
             @Override
             public void itemStateChanged(ItemEvent arg0) {
                 if(ItemEvent.SELECTED == arg0.getStateChange()){
-                    String selectedItem = arg0.getItem().toString();
+                    Area selectedItem = (Area)arg0.getItem();
                     cityBox.removeAllItems();
-                    List<Area> children = ParseUtil.getChildren(selectedItem);
+                    List<Area> children = ParseUtil.getChildren(selectedItem.getName());
                     for (Area child : children) {
                         cityBox.addItem(child);
                     }
@@ -129,11 +129,17 @@ public class MainFrame extends JFrame {
             }
         };
         provinceBox.addItemListener(itemListener);
-        cityBox = new JComboBox<>();
+        cityBox = new JComboBox<>( ParseUtil.getChildren("直辖市").toArray(new Area[0]));
+
         provinceBox.setBounds(20, 275, 100, 20);
         cityBox.setBounds(130, 275, 80, 20);
 
         JButton setAreaBtn = new JButton("确定");
+        setAreaBtn.addActionListener(e->{
+            Area selectedItem = (Area) cityBox.getSelectedItem();
+            Config.regionCode = selectedItem.getValue();
+            appendMsg("已选择地区:"+selectedItem.getName());
+        });
         setAreaBtn.setBounds(220, 270, 80, 30);
 
         scrollPane.setBounds(10,10,460,200);

@@ -80,10 +80,9 @@ public class ParseUtil {
         }
         return areas;
     }
-    public static List<Area> getChildren(String s){
-        String[] split = s.split("-");
+    public static List<Area> getChildren(String name){
         for (Area area : areas) {
-            if(area.getName().equals(split[0])){
+            if(area.getName().equals(name)){
                 return area.getChildren();
             }
         }

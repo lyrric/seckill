@@ -39,6 +39,6 @@ public class Area {
 
     @Override
     public String toString() {
-        return name + "-" + value ;
+        return name;
     }
 }
