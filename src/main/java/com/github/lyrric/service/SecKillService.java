@@ -86,7 +86,7 @@ public class SecKillService {
             now = System.currentTimeMillis();
         }while (now + 200 < startDate);
         logger.info("###########第二波 开始秒杀###########");
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
             service.submit(task);
         }
         //准点（提前20毫秒）秒杀
