@@ -3,6 +3,7 @@ package com.github.lyrric.service;
 import com.alibaba.fastjson.JSONObject;
 import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.*;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -50,8 +51,110 @@ public class HttpService {
         params.put("vaccineIndex", vaccineIndex);
         params.put("linkmanId", linkmanId);
         params.put("idCardNo", idCard);
-        return get(path, params);
+        //后面替换成接口返回的st
+        //目前发现接口返回的st就是当前时间，后面可能会固定为一个加密参数
+        long st = System.currentTimeMillis();
+        Header header = new BasicHeader("ecc-hs", eccHs(seckillId, st));
+        return get(path, params, header);
     }
+
+    /**
+     * 获取疫苗列表
+     * @return
+     * @throws BusinessException
+     */
+    public List<VaccineList> getVaccineList() throws BusinessException, IOException {
+        hasAvailableConfig();
+        String path = baseUrl+"/seckill/seckill/list.do";
+        Map<String, String> param = new HashMap<>();
+        //九价疫苗的code
+        param.put("offset", "0");
+        param.put("limit", "100");
+        //这个应该是成都的行政区划前四位
+        param.put("regionCode", Config.regionCode);
+        String json = get(path, param, null);
+        return JSONObject.parseArray(json).toJavaList(VaccineList.class);
+    }
+
+
+    /**
+     * 获取接种人信息
+     * @return
+     */
+    public List<Member> getMembers() throws IOException, BusinessException {
+        String path = baseUrl + "/seckill/linkman/findByUserId.do";
+        String json = get(path, null, null);
+        return  JSONObject.parseArray(json, Member.class);
+    }
+    /***
+     * 获取加密参数st
+     * @param vaccineId 疫苗ID
+     */
+    public String getSt(String vaccineId) throws IOException {
+        String path = baseUrl+"/seckill/seckill/checkstock2.do";
+        Map<String, String> params = new HashMap<>();
+        params.put("id", vaccineId);
+        String json =  get(path, params, null);
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        return jsonObject.getJSONObject("data").getString("st");
+    }
+
+    private void hasAvailableConfig() throws BusinessException {
+        if(StringUtils.isEmpty(Config.cookies)){
+            throw new BusinessException("0", "请先配置cookie");
+        }
+    }
+
+    private String get(String path, Map<String, String> params, Header extHeader) throws IOException, BusinessException {
+        if(params != null && params.size() !=0){
+            StringBuilder paramStr = new StringBuilder("?");
+            params.forEach((key,value)->{
+                paramStr.append(key).append("=").append(value).append("&");
+            });
+            String t = paramStr.toString();
+            if(t.endsWith("&")){
+                t = t.substring(0, t.length()-1);
+            }
+            path+=t;
+        }
+        HttpGet get = new HttpGet(path);
+        List<Header> headers = getCommonHeader();
+        if(extHeader != null){
+            headers.add(extHeader);
+        }
+        get.setHeaders(headers.toArray(new Header[0]));
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpEntity httpEntity = httpClient.execute(get).getEntity();
+        String json =  EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
+        JSONObject jsonObject = JSONObject.parseObject(json);
+        if("0000".equals(jsonObject.get("code"))){
+            return jsonObject.getString("data");
+        }else{
+            throw new BusinessException(jsonObject.getString("code"), jsonObject.getString("msg"));
+        }
+    }
+
+    private List<Header>getCommonHeader(){
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/1042 MicroMessenger/7.0.15.1680(0x27000F34) Process/appbrand0 WeChat/arm32 NetType/WIFI Language/zh_CN ABI/arm32"));
+        headers.add(new BasicHeader("Referer", "https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html"));
+        headers.add(new BasicHeader("tk", Config.tk));
+        headers.add(new BasicHeader("Accept","application/json, text/plain, */*"));
+        headers.add(new BasicHeader("Host","miaomiao.scmttec.com"));
+        headers.add(new BasicHeader("Cookie",Config.cookies));
+        return headers;
+    }
+
+    private String eccHs(String seckillId, Long st){
+        String salt = "ux$ad70*b";
+        final Integer memberId = Config.memberId;
+        String md5 = DigestUtils.md5Hex(seckillId + st + memberId);
+        return DigestUtils.md5Hex(md5 + salt);
+    }
+
+
+
+
 
     /***
      * 获取接种日期
@@ -63,7 +166,7 @@ public class HttpService {
         Map<String, String> params = new HashMap<>();
         params.put("id", vaccineId);
         params.put("sid", orderId);
-        String json =  get(path, params);
+        String json =  get(path, params, null);
         logger.info("日期格式:{}", json);
         return JSONObject.parseArray(json).toJavaList(SubDate.class);
     }
@@ -83,7 +186,7 @@ public class HttpService {
         params.put("id", vaccineId);
         params.put("sid", orderId);
         params.put("day", day);
-        String json =  get(path, params);
+        String json = get(path, params, null);
         System.out.println("根据选择的日期，获取的时间格式"+json);
         return JSONObject.parseArray(json).toJavaList(SubDateTime.class);
     }
@@ -104,79 +207,7 @@ public class HttpService {
         params.put("sid", orderId);
         params.put("day", day);
         params.put("wid", wid);
-        String json =  get(path, params);
+        String json =  get(path, params, null);
         logger.info("提交接种时间，返回数据: {}", json);
-    }
-
-
-    /**
-     * 获取疫苗列表
-     * @return
-     * @throws BusinessException
-     */
-    public List<VaccineList> getVaccineList() throws BusinessException, IOException {
-        hasAvailableConfig();
-        String path = baseUrl+"/seckill/seckill/list.do";
-        Map<String, String> param = new HashMap<>();
-        //九价疫苗的code
-        param.put("offset", "0");
-        param.put("limit", "100");
-        //这个应该是成都的行政区划前四位
-        param.put("regionCode", Config.regionCode);
-        String json = get(path, param);
-        return JSONObject.parseArray(json).toJavaList(VaccineList.class);
-    }
-
-
-    /**
-     * 获取接种人信息
-     * @return
-     */
-    public List<Member> getMembers() throws IOException, BusinessException {
-        String path = baseUrl + "/seckill/linkman/findByUserId.do";
-        String json = get(path, null);
-        return  JSONObject.parseArray(json, Member.class);
-    }
-
-    private void hasAvailableConfig() throws BusinessException {
-        if(StringUtils.isEmpty(Config.cookies)){
-            throw new BusinessException("0", "请先配置cookie");
-        }
-    }
-
-    private String get(String path, Map<String, String> params) throws IOException, BusinessException {
-        if(params != null && params.size() !=0){
-            StringBuilder paramStr = new StringBuilder("?");
-            params.forEach((key,value)->{
-                paramStr.append(key).append("=").append(value).append("&");
-            });
-            String t = paramStr.toString();
-            if(t.endsWith("&")){
-                t = t.substring(0, t.length()-1);
-            }
-            path+=t;
-        }
-        HttpGet get = new HttpGet(path);
-        get.setHeaders(getCommonHeader());
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpEntity httpEntity = httpClient.execute(get).getEntity();
-        String json =  EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
-        JSONObject jsonObject = JSONObject.parseObject(json);
-        if("0000".equals(jsonObject.get("code"))){
-            return jsonObject.getString("data");
-        }else{
-            throw new BusinessException(jsonObject.getString("code"), jsonObject.getString("msg"));
-        }
-    }
-
-    private Header[] getCommonHeader(){
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/1042 MicroMessenger/7.0.15.1680(0x27000F34) Process/appbrand0 WeChat/arm32 NetType/WIFI Language/zh_CN ABI/arm32"));
-        headers.add(new BasicHeader("Referer", "https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html"));
-        headers.add(new BasicHeader("tk", Config.tk));
-        headers.add(new BasicHeader("Accept","application/json, text/plain, */*"));
-        headers.add(new BasicHeader("Host","miaomiao.scmttec.com"));
-        headers.add(new BasicHeader("Cookie",Config.cookies));
-        return headers.toArray(new Header[0]);
     }
 }
