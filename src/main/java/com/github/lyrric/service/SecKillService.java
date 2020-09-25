@@ -32,7 +32,7 @@ public class SecKillService {
 
     private final Logger logger = LogManager.getLogger(SecKillService.class);
 
-    private ExecutorService service = Executors.newFixedThreadPool(100);
+    private ExecutorService service = Executors.newFixedThreadPool(200);
 
     public SecKillService() {
         httpService = new HttpService();
@@ -76,26 +76,46 @@ public class SecKillService {
             } while (orderId.get() == null);
         };
         long now = System.currentTimeMillis();
-        if(now + 1000 < startDate){
+        if(now + 2000 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate-now-1000);
+            Thread.sleep(startDate-now-2000);
         }
         //如何保证能在秒杀时间点瞬间并发？
-
+        //提前2000毫秒开始秒杀
+        logger.info("###########提前2秒 开始秒杀###########");
+        for (int i = 0; i < 20; i++) {
+            service.submit(task);
+        }
+        //提前1000毫秒开始秒杀
+        do {
+            now = System.currentTimeMillis();
+        }while (now + 1000 < startDate);
+        logger.info("###########第一波 开始秒杀###########");
+        for (int i = 0; i < 20; i++) {
+            service.submit(task);
+        }
+        //提前500毫秒开始秒杀
+        do {
+            now = System.currentTimeMillis();
+        }while (now + 500 < startDate);
+        logger.info("###########第二波 开始秒杀###########");
+        for (int i = 0; i < 20; i++) {
+            service.submit(task);
+        }
         //提前200毫秒开始秒杀
         do {
             now = System.currentTimeMillis();
         }while (now + 200 < startDate);
-        logger.info("###########第二波 开始秒杀###########");
-        for (int i = 0; i < 50; i++) {
+        logger.info("###########第三波 开始秒杀###########");
+        for (int i = 0; i < 40; i++) {
             service.submit(task);
         }
         //准点（提前20毫秒）秒杀
         do {
             now = System.currentTimeMillis();
         }while (now + 20 < startDate);
-        logger.info("###########第三波 开始秒杀###########");
-        for (int i = 0; i < 50; i++) {
+        logger.info("###########第四波 开始秒杀###########");
+        for (int i = 0; i < 40; i++) {
             service.submit(task);
         }
 
