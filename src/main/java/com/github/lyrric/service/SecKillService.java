@@ -58,8 +58,8 @@ public class SecKillService {
                     logger.info("Thread ID：{}，抢购成功", id);
                 } catch (BusinessException e) {
                     logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
-                    //如果离开始时间30秒后，或者已经成功抢到则不再继续
-                    if(System.currentTimeMillis() > startDate+1000*30 || success.get()){
+                    //如果离开始时间120秒后，或者已经成功抢到则不再继续
+                    if(System.currentTimeMillis() > startDate+1000*60*2 || success.get()){
                         return;
                     }
 //                    if("操作过于频繁,请稍后再试!".equals(e.getErrMsg()) && new Random().nextBoolean()){
