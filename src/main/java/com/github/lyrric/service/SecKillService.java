@@ -98,7 +98,8 @@ public class SecKillService {
         for (int i = 0; i < 50; i++) {
             service.submit(task);
         }
-
+        Thread.sleep(20);
+        service.submit(getStTask);
         service.shutdown();
         if(mainFrame != null){
             mainFrame.setStartBtnEnable();
@@ -138,5 +139,17 @@ public class SecKillService {
         return date.getTime();
     }
 
+     Runnable getStTask = ()->{
+         for (int i = 0; i < 10; i++) {
+             try {
+                 String st = httpService.getSt("694");
+                 logger.info("st = {}", st);
+                 Thread.sleep(500);
+             } catch (IOException | InterruptedException e) {
+                 logger.error(e);
+                 e.printStackTrace();
+             }
+         }
+    };
 
 }
