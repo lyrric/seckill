@@ -208,10 +208,11 @@ public class MainFrame extends JFrame {
                 service.startSecKill(id, startTime, this);
             } catch (ParseException | InterruptedException e) {
                 appendMsg("解析开始时间失败");
+                e.printStackTrace();
+            }finally {
                 setCookieBtn.setEnabled(true);
                 startBtn.setEnabled(true);
                 setMemberBtn.setEnabled(true);
-                e.printStackTrace();
             }
         }).start();
 
