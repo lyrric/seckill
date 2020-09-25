@@ -10,7 +10,7 @@
 			<PatternLayout pattern="%d{HH:mm:ss.SSS}  %-5level  %class{36}  %L %M ==>  %msg%xEx%n"/>
 		</Console>
 		<!--文件会打印信息 -->
-		<File name="fileLog" fileName="target/seckill.log" append="true">
+		<File name="fileLog" fileName="target/test/seckill.log" append="true">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS}  %-5level  %class{36}  %L %M ==>  %msg%xEx%n"/>
 		</File>
 	</appenders>
