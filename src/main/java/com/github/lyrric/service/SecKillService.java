@@ -4,6 +4,7 @@ import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.BusinessException;
 import com.github.lyrric.model.VaccineList;
 import com.github.lyrric.ui.MainFrame;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -94,7 +95,7 @@ public class SecKillService {
             now = System.currentTimeMillis();
         }while (now + 20 < startDate);
         logger.info("###########第三波 开始秒杀###########");
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 50; i++) {
             service.submit(task);
         }
 
@@ -136,4 +137,6 @@ public class SecKillService {
         Date date = format.parse(dateStr);
         return date.getTime();
     }
+
+
 }
