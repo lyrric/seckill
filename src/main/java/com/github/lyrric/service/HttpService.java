@@ -98,6 +98,16 @@ public class HttpService {
         JSONObject jsonObject = JSONObject.parseObject(json);
         return jsonObject.getJSONObject("data").getString("st");
     }
+    /***
+     * log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+     * @param vaccineId 疫苗ID
+     */
+    public void log(String vaccineId) throws IOException {
+        String path = baseUrl+"/seckill/seckill/log.do";
+        Map<String, String> params = new HashMap<>();
+        params.put("id", vaccineId);
+        get(path, params, null);
+    }
 
     private void hasAvailableConfig() throws BusinessException {
         if(StringUtils.isEmpty(Config.cookies)){

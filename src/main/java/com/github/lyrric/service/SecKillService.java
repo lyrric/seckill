@@ -76,24 +76,39 @@ public class SecKillService {
             } while (orderId.get() == null);
         };
         long now = System.currentTimeMillis();
+        try {
+            //log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+            httpService.log(vaccineId.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if(now + 2000 < startDate){
             logger.info("还未到开始时间，等待中......");
             Thread.sleep(startDate-now-2000);
         }
         //如何保证能在秒杀时间点瞬间并发？
         //提前2000毫秒开始秒杀
+        try {
+            //log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+            httpService.log(vaccineId.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         logger.info("###########提前2秒 开始秒杀###########");
         for (int i = 0; i < 20; i++) {
             service.submit(task);
         }
         //提前1000毫秒开始秒杀
+        try {
+            //log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+            httpService.log(vaccineId.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         do {
             now = System.currentTimeMillis();
         }while (now + 1000 < startDate);
         logger.info("###########第一波 开始秒杀###########");
-        for (int i = 0; i < 20; i++) {
-            service.submit(task);
-        }
         //提前500毫秒开始秒杀
         do {
             now = System.currentTimeMillis();
@@ -101,6 +116,12 @@ public class SecKillService {
         logger.info("###########第二波 开始秒杀###########");
         for (int i = 0; i < 20; i++) {
             service.submit(task);
+        }
+        try {
+            //log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+            httpService.log(vaccineId.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         //提前200毫秒开始秒杀
         do {
@@ -111,6 +132,12 @@ public class SecKillService {
             service.submit(task);
         }
         //准点（提前20毫秒）秒杀
+        try {
+            //log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+            httpService.log(vaccineId.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         do {
             now = System.currentTimeMillis();
         }while (now + 20 < startDate);
