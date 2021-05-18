@@ -44,16 +44,14 @@ public class HttpService {
      * @throws IOException
      * @throws BusinessException
      */
-    public String secKill(String seckillId, String vaccineIndex, String linkmanId, String idCard) throws IOException, BusinessException {
+    public String secKill(String seckillId, String vaccineIndex, String linkmanId, String idCard, String st) throws IOException, BusinessException {
         String path = baseUrl+"/seckill/seckill/subscribe.do";
         Map<String, String> params = new HashMap<>();
         params.put("seckillId", seckillId);
         params.put("vaccineIndex", vaccineIndex);
         params.put("linkmanId", linkmanId);
         params.put("idCardNo", idCard);
-        //后面替换成接口返回的st
-        //目前发现接口返回的st就是当前时间，后面可能会固定为一个加密参数
-        long st = System.currentTimeMillis();
+        //加密参数
         Header header = new BasicHeader("ecc-hs", eccHs(seckillId, st));
         return get(path, params, header);
     }
@@ -155,7 +153,7 @@ public class HttpService {
         return headers;
     }
 
-    private String eccHs(String seckillId, Long st){
+    private String eccHs(String seckillId, String st){
         String salt = "ux$ad70*b";
         final Integer memberId = Config.memberId;
         String md5 = DigestUtils.md5Hex(seckillId + st + memberId);

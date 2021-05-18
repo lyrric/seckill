@@ -45,9 +45,9 @@ public class SecKillService {
 
         AtomicBoolean success = new AtomicBoolean(false);
         long now = System.currentTimeMillis();
-        if(now + 1000 < startDate){
+        if(now + 500 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate-now-2000);
+            Thread.sleep(startDate - now - 500);
         }
         String orderId = null;
         do {
@@ -57,14 +57,15 @@ public class SecKillService {
                 logger.info("Thread ID：{}，发送请求", id);
                 //log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
                 httpService.log(vaccineId.toString());
-                orderId = httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(), Config.idCard);
+                String st = httpService.getSt(vaccineId.toString());
+                orderId = httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(), Config.idCard, st);
                 success.set(true);
                 logger.info("Thread ID：{}，抢购成功", id);
                 break;
             } catch (BusinessException e) {
                 logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
                 //如果离开始时间120秒后，或者已经成功抢到则不再继续
-                if(System.currentTimeMillis() > startDate+1000*60*2 || success.get()){
+                if (System.currentTimeMillis() > startDate + 1000 * 60 * 2 || success.get()) {
                     return;
                 }
             } catch (Exception e) {
