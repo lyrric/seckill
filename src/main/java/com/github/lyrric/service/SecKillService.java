@@ -45,9 +45,9 @@ public class SecKillService {
 
         AtomicBoolean success = new AtomicBoolean(false);
         long now = System.currentTimeMillis();
-        if(now + 500 < startDate){
+        if(now + 2000 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate - now - 500);
+            Thread.sleep(startDate - now - 2000);
         }
         AtomicReference<String> orderId = new AtomicReference<>();
         AtomicReference<String> st = new AtomicReference<>();
@@ -59,6 +59,10 @@ public class SecKillService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        if(now + 500 < startDate){
+            logger.info("还未到开始时间，等待中......");
+            Thread.sleep(startDate - now - 500);
         }
         Runnable runnable = ()->{
             do {
