@@ -156,11 +156,20 @@ public class HttpService {
     private String eccHs(String seckillId, String st){
         String salt = "ux$ad70*b";
         final Integer memberId = Config.memberId;
-        String md5 = DigestUtils.md5Hex(seckillId + st + memberId);
+        String md5 = DigestUtils.md5Hex(seckillId + memberId + st);
         return DigestUtils.md5Hex(md5 + salt);
     }
 
 
+    public static void main(String[] args) {
+        String salt = "ux$ad70*b";
+        final Integer memberId = Config.memberId;
+        //7053c40d6ffd5abddeac7ced36c51e60
+        String st = "1";
+        String md5 = DigestUtils.md5Hex("976" + "10036065" + st);
+        System.out.println(md5);
+        System.out.println(DigestUtils.md5Hex(md5 + salt));
+    }
 
 
 
