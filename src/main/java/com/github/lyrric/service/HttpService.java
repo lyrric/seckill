@@ -94,7 +94,7 @@ public class HttpService {
         params.put("id", vaccineId);
         String json =  get(path, params, null);
         JSONObject jsonObject = JSONObject.parseObject(json);
-        return jsonObject.getJSONObject("data").getString("st");
+        return jsonObject.getString("st");
     }
     /***
      * log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
@@ -159,18 +159,6 @@ public class HttpService {
         String md5 = DigestUtils.md5Hex(seckillId + memberId + st);
         return DigestUtils.md5Hex(md5 + salt);
     }
-
-
-    public static void main(String[] args) {
-        String salt = "ux$ad70*b";
-        final Integer memberId = Config.memberId;
-        //7053c40d6ffd5abddeac7ced36c51e60
-        String st = "1";
-        String md5 = DigestUtils.md5Hex("976" + "10036065" + st);
-        System.out.println(md5);
-        System.out.println(DigestUtils.md5Hex(md5 + salt));
-    }
-
 
 
     /***
