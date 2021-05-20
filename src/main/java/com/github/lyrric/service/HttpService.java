@@ -7,10 +7,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BufferedHeader;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created on 2020-07-22.
@@ -132,7 +135,9 @@ public class HttpService {
         }
         get.setHeaders(headers.toArray(new Header[0]));
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpEntity httpEntity = httpClient.execute(get).getEntity();
+        CloseableHttpResponse response = httpClient.execute(get);
+        dealHeader(response);
+        HttpEntity httpEntity = response.getEntity();
         String json =  EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
         JSONObject jsonObject = JSONObject.parseObject(json);
         if("0000".equals(jsonObject.get("code"))){
@@ -142,14 +147,30 @@ public class HttpService {
         }
     }
 
-    private List<Header>getCommonHeader(){
+    private void dealHeader(CloseableHttpResponse response){
+        Header[] responseHeaders = response.getHeaders("Set-Cookie");
+        if (responseHeaders.length > 0) {
+            for (Header responseHeader : responseHeaders) {
+                String cookie = ((BufferedHeader) responseHeader).getBuffer().toString().split(";")[0].split(":")[1].trim();
+                String[] split = cookie.split("=");
+                Config.responseCookie.put(split[0], cookie);
+            }
+        }
+    }
+
+    private List<Header> getCommonHeader(){
         List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/1042 MicroMessenger/7.0.15.1680(0x27000F34) Process/appbrand0 WeChat/arm32 NetType/WIFI Language/zh_CN ABI/arm32"));
         headers.add(new BasicHeader("Referer", "https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html"));
         headers.add(new BasicHeader("tk", Config.tk));
         headers.add(new BasicHeader("Accept","application/json, text/plain, */*"));
         headers.add(new BasicHeader("Host","miaomiao.scmttec.com"));
-        headers.add(new BasicHeader("Cookie",Config.cookies));
+        String cookie = Config.cookies;
+        if(!Config.responseCookie.isEmpty()){
+            String join = String.join("; ", new ArrayList<>(Config.responseCookie.values()));
+            cookie = join + "; " + cookie;
+        }
+        headers.add(new BasicHeader("Cookie", cookie));
         return headers;
     }
 
