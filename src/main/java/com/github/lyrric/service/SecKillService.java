@@ -60,10 +60,6 @@ public class SecKillService {
                 e.printStackTrace();
             }
         }
-        if(now + 500 < startDate){
-            logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate - now - 500);
-        }
         Runnable runnable = ()->{
             do {
                 try {
@@ -88,7 +84,7 @@ public class SecKillService {
             } while (orderId.get() == null);
         };
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 20; i++) {
             service.submit(runnable);
         }
         service.shutdown();
