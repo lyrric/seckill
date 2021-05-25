@@ -2,6 +2,7 @@
 **共享资源，仅能用于学习，请勿用于商业。**  
 **Sharing of resources, can only be used for learning, not for business！！！**
 ## 更新日志
+- 2021.05.25 v1.4长时间未抢到，目测是加密参数ecc-hs起作用了，之前忙一直用的是假的ecc-hs，所以完善了加密参数，增加了单线程版本在single-thread分支
 - 2020.09.25 v1.3增加了加密参数ecc-hs（目前无用），秒杀时间提前至两秒，加大了并发数量
 - 2020.09.17 v1.2增加了地区选择功能
 - 2020.08.14 V1.1增加了控制台模式，通过java -jar sec-kill.jar -c 进入  

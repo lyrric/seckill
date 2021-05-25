@@ -45,14 +45,14 @@ public class SecKillService {
 
         AtomicBoolean success = new AtomicBoolean(false);
         long now = System.currentTimeMillis();
-        if(now + 2000 < startDate){
+        if(now + 5000 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate - now - 2000);
+            Thread.sleep(startDate - now - 5000);
         }
         AtomicReference<String> orderId = new AtomicReference<>();
         AtomicReference<String> st = new AtomicReference<>();
         while (true){
-            //获取服务器时间戳接口，计算加密用
+            //提前五秒钟获取服务器时间戳接口，计算加密用
             try {
                 st.set(httpService.getSt(vaccineId.toString()));
                 break;
@@ -61,6 +61,11 @@ public class SecKillService {
             }catch (Exception e) {
                 logger.error("获取st失败，大概率是约秒问题:{}", e.getMessage());
             }
+        }
+        now = System.currentTimeMillis();
+        if(now + 1500 < startDate){
+            logger.info("还未到开始时间，等待中......");
+            Thread.sleep(startDate - now - 1500);
         }
         Runnable runnable = ()->{
             do {
@@ -75,13 +80,13 @@ public class SecKillService {
                     break;
                 } catch (BusinessException e) {
                     logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
-                    //如果离开始时间120秒后，或者已经成功抢到则不再继续
-                    if (System.currentTimeMillis() > startDate + 1000 * 60 * 2 || success.get()) {
-                        return;
-                    }
                 } catch (Exception e) {
-                    e.printStackTrace();
                     logger.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());
+                }finally {
+                    //如果离开始时间180秒后，或者已经成功抢到则不再继续
+                    if (System.currentTimeMillis() > startDate + 1000 * 60 * 3 || success.get()) {
+                        break;
+                    }
                 }
             } while (orderId.get() == null);
         };
