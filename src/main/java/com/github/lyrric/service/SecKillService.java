@@ -45,9 +45,9 @@ public class SecKillService {
         AtomicBoolean success = new AtomicBoolean(false);
 
         long now = System.currentTimeMillis();
-        if(now + 1000 < startDate){
+        if(now + 200 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate-now-1000);
+            Thread.sleep(startDate-now-200);
         }
         do {
             try {
