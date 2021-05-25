@@ -56,8 +56,10 @@ public class SecKillService {
             try {
                 st.set(httpService.getSt(vaccineId.toString()));
                 break;
-            } catch (Exception e) {
-                e.printStackTrace();
+            }catch (BusinessException e){
+                logger.error("获取st失败: {}", e.getMessage());
+            }catch (Exception e) {
+                logger.error("获取st失败，大概率是约秒问题:{}", e.getMessage());
             }
         }
         Runnable runnable = ()->{
@@ -88,7 +90,6 @@ public class SecKillService {
             service.submit(runnable);
         }
         service.shutdown();
-
         //等待线程结束
         try {
             service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
