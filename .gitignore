@@ -12,6 +12,8 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 ./target/
+.idea/
+dependency-reduced-pom.xml
 # Package Files #
 *.jar
 *.war
