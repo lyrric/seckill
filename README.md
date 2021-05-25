@@ -2,6 +2,8 @@
 **共享资源，仅能用于学习，请勿用于商业。**  
 **Sharing of resources, can only be used for learning, not for business！！！**
 ## 更新日志
+- 2020.09.25 v1.3增加了加密参数ecc-hs（目前无用），秒杀时间提前至两秒，加大了并发数量
+- 2020.09.17 v1.2增加了地区选择功能
 - 2020.08.14 V1.1增加了控制台模式，通过java -jar sec-kill.jar -c 进入  
              优化了交互，减少了并发的数量避免操作频繁
 - 2020.08.11 优化了req-header的解析，目测可以万能解析；优化了交互

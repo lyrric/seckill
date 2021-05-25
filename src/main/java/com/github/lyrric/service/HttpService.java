@@ -7,10 +7,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BufferedHeader;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created on 2020-07-22.
@@ -44,16 +47,14 @@ public class HttpService {
      * @throws IOException
      * @throws BusinessException
      */
-    public String secKill(String seckillId, String vaccineIndex, String linkmanId, String idCard) throws IOException, BusinessException {
+    public String secKill(String seckillId, String vaccineIndex, String linkmanId, String idCard, String st) throws IOException, BusinessException {
         String path = baseUrl+"/seckill/seckill/subscribe.do";
         Map<String, String> params = new HashMap<>();
         params.put("seckillId", seckillId);
         params.put("vaccineIndex", vaccineIndex);
         params.put("linkmanId", linkmanId);
         params.put("idCardNo", idCard);
-        //后面替换成接口返回的st
-        //目前发现接口返回的st就是当前时间，后面可能会固定为一个加密参数
-        long st = System.currentTimeMillis();
+        //加密参数
         Header header = new BasicHeader("ecc-hs", eccHs(seckillId, st));
         return get(path, params, header);
     }
@@ -96,7 +97,17 @@ public class HttpService {
         params.put("id", vaccineId);
         String json =  get(path, params, null);
         JSONObject jsonObject = JSONObject.parseObject(json);
-        return jsonObject.getJSONObject("data").getString("st");
+        return jsonObject.getString("st");
+    }
+    /***
+     * log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+     * @param vaccineId 疫苗ID
+     */
+    public void log(String vaccineId) throws IOException {
+        String path = baseUrl+"/seckill/seckill/log.do";
+        Map<String, String> params = new HashMap<>();
+        params.put("id", vaccineId);
+        get(path, params, null);
     }
 
     private void hasAvailableConfig() throws BusinessException {
@@ -124,7 +135,9 @@ public class HttpService {
         }
         get.setHeaders(headers.toArray(new Header[0]));
         CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpEntity httpEntity = httpClient.execute(get).getEntity();
+        CloseableHttpResponse response = httpClient.execute(get);
+        dealHeader(response);
+        HttpEntity httpEntity = response.getEntity();
         String json =  EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
         JSONObject jsonObject = JSONObject.parseObject(json);
         if("0000".equals(jsonObject.get("code"))){
@@ -134,26 +147,39 @@ public class HttpService {
         }
     }
 
-    private List<Header>getCommonHeader(){
+    private void dealHeader(CloseableHttpResponse response){
+        Header[] responseHeaders = response.getHeaders("Set-Cookie");
+        if (responseHeaders.length > 0) {
+            for (Header responseHeader : responseHeaders) {
+                String cookie = ((BufferedHeader) responseHeader).getBuffer().toString().split(";")[0].split(":")[1].trim();
+                String[] split = cookie.split("=");
+                Config.responseCookie.put(split[0], cookie);
+            }
+        }
+    }
+
+    private List<Header> getCommonHeader(){
         List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-N960F Build/JLS36C; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36 MMWEBID/1042 MicroMessenger/7.0.15.1680(0x27000F34) Process/appbrand0 WeChat/arm32 NetType/WIFI Language/zh_CN ABI/arm32"));
         headers.add(new BasicHeader("Referer", "https://servicewechat.com/wxff8cad2e9bf18719/2/page-frame.html"));
         headers.add(new BasicHeader("tk", Config.tk));
         headers.add(new BasicHeader("Accept","application/json, text/plain, */*"));
         headers.add(new BasicHeader("Host","miaomiao.scmttec.com"));
-        headers.add(new BasicHeader("Cookie",Config.cookies));
+        String cookie = Config.cookies;
+        if(!Config.responseCookie.isEmpty()){
+            String join = String.join("; ", new ArrayList<>(Config.responseCookie.values()));
+            cookie = join + "; " + cookie;
+        }
+        headers.add(new BasicHeader("Cookie", cookie));
         return headers;
     }
 
-    private String eccHs(String seckillId, Long st){
+    private String eccHs(String seckillId, String st){
         String salt = "ux$ad70*b";
         final Integer memberId = Config.memberId;
-        String md5 = DigestUtils.md5Hex(seckillId + st + memberId);
+        String md5 = DigestUtils.md5Hex(seckillId + memberId + st);
         return DigestUtils.md5Hex(md5 + salt);
     }
-
-
-
 
 
     /***

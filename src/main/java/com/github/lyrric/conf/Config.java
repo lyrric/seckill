@@ -2,7 +2,9 @@ package com.github.lyrric.conf;
 
 import com.github.lyrric.model.Member;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created on 2020-07-23.
@@ -46,5 +48,9 @@ public class Config {
      * 选择的地区代码
      */
     public static String regionCode = "5101";
+    /**
+     * 调用接口时返回的set-cookie
+     */
+    public static Map<String, String> responseCookie = new HashMap<>();
 
 }
