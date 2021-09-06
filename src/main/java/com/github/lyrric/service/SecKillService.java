@@ -71,7 +71,7 @@ public class SecKillService {
             } catch (BusinessException e) {
                 logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
                 //如果离开始时间180秒后，或者已经成功抢到则不再继续
-                if (System.currentTimeMillis() > startDate + 1000 * 60 * 2 || orderId != null) {
+                if (System.currentTimeMillis() > startDate + 1000 * 60 * 5 || orderId != null) {
                     break;
                 }
             } catch (Exception e) {
