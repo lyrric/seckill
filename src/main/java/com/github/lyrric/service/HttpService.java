@@ -99,8 +99,9 @@ public class HttpService {
         JSONObject jsonObject = JSONObject.parseObject(json);
         return jsonObject.getString("st");
     }
+
     /***
-     * log接口，不知道有何作用，也许调用这个接口后，服务端做了什么处理也未可知
+     * log接口，不知道有何作用，但返回值会设置一个名为tgw_l7_route的cookie
      * @param vaccineId 疫苗ID
      */
     public void log(String vaccineId) throws IOException {
@@ -111,7 +112,7 @@ public class HttpService {
     }
 
     private void hasAvailableConfig() throws BusinessException {
-        if(StringUtils.isEmpty(Config.cookies)){
+        if(Config.cookie.isEmpty()){
             throw new BusinessException("0", "请先配置cookie");
         }
     }
@@ -153,7 +154,7 @@ public class HttpService {
             for (Header responseHeader : responseHeaders) {
                 String cookie = ((BufferedHeader) responseHeader).getBuffer().toString().split(";")[0].split(":")[1].trim();
                 String[] split = cookie.split("=");
-                Config.responseCookie.put(split[0], cookie);
+                Config.cookie.put(split[0], cookie);
             }
         }
     }
@@ -165,12 +166,11 @@ public class HttpService {
         headers.add(new BasicHeader("tk", Config.tk));
         headers.add(new BasicHeader("Accept","application/json, text/plain, */*"));
         headers.add(new BasicHeader("Host","miaomiao.scmttec.com"));
-        String cookie = Config.cookies;
-        if(!Config.responseCookie.isEmpty()){
-            String join = String.join("; ", new ArrayList<>(Config.responseCookie.values()));
-            cookie = join + "; " + cookie;
+        if(!Config.cookie.isEmpty()){
+            String cookie = String.join("; ", new ArrayList<>(Config.cookie.values()));
+            logger.info("cookie is {}", cookie);
+            headers.add(new BasicHeader("Cookie", cookie));
         }
-        headers.add(new BasicHeader("Cookie", cookie));
         return headers;
     }
 
@@ -181,59 +181,10 @@ public class HttpService {
         return DigestUtils.md5Hex(md5 + salt);
     }
 
-
-    /***
-     * 获取接种日期
-     * @param vaccineId 疫苗ID
-     * @param orderId 订单ID
-     */
-    public List<SubDate> getSkSubDays(String vaccineId, String orderId) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/seckill/subscribeDays.do";
-        Map<String, String> params = new HashMap<>();
-        params.put("id", vaccineId);
-        params.put("sid", orderId);
-        String json =  get(path, params, null);
-        logger.info("日期格式:{}", json);
-        return JSONObject.parseArray(json).toJavaList(SubDate.class);
-    }
-
-    /**
-     * 根据接种日期，获取接种时间段
-     * @param vaccineId
-     * @param orderId
-     * @param day 接种日期 YYYY-MM-DD
-     * @return
-     * @throws IOException
-     * @throws BusinessException
-     */
-    public List<SubDateTime> getSkSubDayTime(String vaccineId, String orderId, String day) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/seckill/dayTimes.do";
-        Map<String, String> params = new HashMap<>();
-        params.put("id", vaccineId);
-        params.put("sid", orderId);
-        params.put("day", day);
-        String json = get(path, params, null);
-        System.out.println("根据选择的日期，获取的时间格式"+json);
-        return JSONObject.parseArray(json).toJavaList(SubDateTime.class);
-    }
-
-    /**
-     * 提交接种时间
-     * @param vaccineId
-     * @param orderId
-     * @param day 接种日期 YYYY-MM-DD
-     * @return
-     * @throws IOException
-     * @throws BusinessException
-     */
-    public void subDayTime(String vaccineId, String orderId, String day, String wid) throws IOException, BusinessException {
-        String path = baseUrl+"/seckill/seckill/submitDateTime.do";
-        Map<String, String> params = new HashMap<>();
-        params.put("id", vaccineId);
-        params.put("sid", orderId);
-        params.put("day", day);
-        params.put("wid", wid);
-        String json =  get(path, params, null);
-        logger.info("提交接种时间，返回数据: {}", json);
+    public static void main(String[] args) {
+        String salt = "ux$ad70*b";
+        Integer memberId = 12372032;
+        String md5 = DigestUtils.md5Hex("1085" + memberId + "1630902134216");
+        System.out.println(DigestUtils.md5Hex(md5 + salt));
     }
 }

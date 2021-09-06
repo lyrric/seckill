@@ -43,7 +43,6 @@ public class SecKillService {
     public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException, InterruptedException {
         long startDate = convertDateToInt(startDateStr);
 
-        AtomicBoolean success = new AtomicBoolean(false);
         long now = System.currentTimeMillis();
         if(now + 5000 < startDate){
             logger.info("还未到开始时间，等待中......");
@@ -63,9 +62,9 @@ public class SecKillService {
             }
         }
         now = System.currentTimeMillis();
-        if(now + 1500 < startDate){
+        if(now + 1000 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate - now - 1500);
+            Thread.sleep(startDate - now - 1000);
         }
         Runnable runnable = ()->{
             do {
@@ -75,7 +74,6 @@ public class SecKillService {
                     logger.info("Thread ID：{}，发送请求", id);
                     orderId.set(httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(),
                             Config.idCard, st.get()));
-                    success.set(true);
                     logger.info("Thread ID：{}，抢购成功", id);
                     break;
                 } catch (BusinessException e) {
@@ -84,7 +82,7 @@ public class SecKillService {
                     logger.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());
                 }finally {
                     //如果离开始时间180秒后，或者已经成功抢到则不再继续
-                    if (System.currentTimeMillis() > startDate + 1000 * 60 * 3 || success.get()) {
+                    if (System.currentTimeMillis() > startDate + 1000 * 60 *10 || orderId.get() !=null) {
                         break;
                     }
                 }
@@ -98,7 +96,7 @@ public class SecKillService {
         //等待线程结束
         try {
             service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-            if (success.get()) {
+            if (orderId.get() !=null) {
                 if (mainFrame != null) {
                     mainFrame.appendMsg("抢购成功，请登录约苗小程序查看");
                 }

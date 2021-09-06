@@ -42,7 +42,7 @@ public class ConsoleMode {
         log.info("请输入tk：");
         Config.tk = sc.nextLine().trim();
         log.info("请输入Cookie：");
-        Config.cookies = sc.nextLine().trim();
+        calCookie(sc.nextLine().trim());
         log.info("获取接种人员......");
         List<Member> members = httpService.getMembers();
         for (int i = 0; i < members.size(); i++) {
@@ -67,5 +67,10 @@ public class ConsoleMode {
         sc.nextLine();
         secKillService.startSecKill(code, startTime, null);
     }
-
+    private void calCookie(String cookie){
+        String[] s = cookie.replaceAll(" ", "").split(";");
+        for (String s1 : s) {
+            Config.cookie.put(s1.split("=")[0], s1);
+        }
+    }
 }
