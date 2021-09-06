@@ -60,7 +60,7 @@ public class ConfigDialog extends JDialog {
             }else{
                 Config.reqHeader = reqHeader.getText();
                 Config.tk = tk.getText();
-                Config.cookies = cookie.getText();
+                calCookie(cookie.getText());
                 success = true;
                 this.dispose();
             }
@@ -89,5 +89,12 @@ public class ConfigDialog extends JDialog {
 
     public boolean success(){
         return success;
+    }
+
+    private void calCookie(String cookie){
+        String[] s = cookie.replaceAll(" ", "").split(";");
+        for (String s1 : s) {
+            Config.cookie.put(s1.split("=")[0], s1);
+        }
     }
 }

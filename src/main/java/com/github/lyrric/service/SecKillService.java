@@ -41,31 +41,38 @@ public class SecKillService {
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException, InterruptedException {
         long startDate = convertDateToInt(startDateStr);
-
-        AtomicBoolean success = new AtomicBoolean(false);
         long now = System.currentTimeMillis();
-        if(now + 2000 < startDate){
+        if(now + 500 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate - now - 2000);
+            Thread.sleep(startDate - now - 500);
         }
         String orderId = null;
         String st;
         do {
             try {
+                httpService.log(vaccineId.toString());
+                break;
+            }catch (Exception e){
+                logger.warn("httpService.log,未知异常:{}，", e.getMessage());
+            }
+        }while (true);
+
+        do {
+            try {
                 //1.直接秒杀、获取秒杀资格
                 long id = Thread.currentThread().getId();
                 logger.info("Thread ID：{}，发送请求", id);
+                //加密参数
                 st = httpService.getSt(vaccineId.toString());
                 orderId = httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(),
                         Config.idCard, st);
-                success.set(true);
                 logger.info("Thread ID：{}，抢购成功", id);
                 break;
             } catch (BusinessException e) {
                 logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
                 //如果离开始时间180秒后，或者已经成功抢到则不再继续
-                if (System.currentTimeMillis() > startDate + 1000 * 60 * 2 || success.get()) {
-                    return;
+                if (System.currentTimeMillis() > startDate + 1000 * 60 * 2 || orderId != null) {
+                    break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();

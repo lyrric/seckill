@@ -188,7 +188,7 @@ public class MainFrame extends JFrame {
         }
     }
     private void start(){
-        if(StringUtils.isEmpty(Config.cookies)){
+        if(Config.cookie.isEmpty()){
             appendMsg("请配置cookie!!!");
             return ;
         }

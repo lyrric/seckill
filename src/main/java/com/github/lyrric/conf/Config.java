@@ -13,10 +13,6 @@ import java.util.Map;
  */
 public class Config {
 
-    /**
-     * 微信配置
-     */
-    public static String cookies = "";
     public static String tk = "";
 
     public static String reqHeader = "GET https://miaomiao.scmttec.com/seckill/seckill/list.do?offset=0&limit=10&regionCode=5101 HTTP/1.1\n" +
@@ -51,6 +47,6 @@ public class Config {
     /**
      * 调用接口时返回的set-cookie
      */
-    public static Map<String, String> responseCookie = new HashMap<>();
+    public static Map<String, String> cookie = new HashMap<>();
 
 }
