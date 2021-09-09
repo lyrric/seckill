@@ -42,9 +42,9 @@ public class SecKillService {
     public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException, InterruptedException {
         long startDate = convertDateToInt(startDateStr);
         long now = System.currentTimeMillis();
-        if(now + 500 < startDate){
+        if(now + 5000 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate - now - 500);
+            Thread.sleep(startDate - now - 5000);
         }
         String orderId = null;
         String st;
@@ -56,7 +56,10 @@ public class SecKillService {
                 logger.warn("httpService.log,未知异常:{}，", e.getMessage());
             }
         }while (true);
-
+        if(now + 1000 < startDate){
+            logger.info("还未到开始时间，等待中......");
+            Thread.sleep(startDate - now - 1000);
+        }
         do {
             try {
                 //1.直接秒杀、获取秒杀资格
@@ -71,14 +74,17 @@ public class SecKillService {
             } catch (BusinessException e) {
                 logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
                 //如果离开始时间180秒后，或者已经成功抢到则不再继续
-                if (System.currentTimeMillis() > startDate + 1000 * 60 * 5 || orderId != null) {
+                if (System.currentTimeMillis() > startDate + 1000 * 60 * 20 || orderId != null) {
+                    break;
+                }
+                if(e.getErrMsg().contains("没抢到")){
                     break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());
             }
-        } while (orderId == null);
+        } while (true);
 
 
         //等待线程结束
