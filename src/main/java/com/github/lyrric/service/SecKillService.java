@@ -78,6 +78,9 @@ public class SecKillService {
                     break;
                 } catch (BusinessException e) {
                     logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
+                    if(e.getErrMsg().contains("没抢到")){
+                        break;
+                    }
                 } catch (Exception e) {
                     logger.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());
                 }finally {
