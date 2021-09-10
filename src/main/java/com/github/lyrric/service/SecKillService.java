@@ -47,7 +47,7 @@ public class SecKillService {
             Thread.sleep(startDate - now - 5000);
         }
         String orderId = null;
-        String st;
+        String st = "";
         do {
             try {
                 httpService.log(vaccineId.toString());
@@ -60,18 +60,23 @@ public class SecKillService {
             logger.info("还未到开始时间，等待中......");
             Thread.sleep(startDate - now - 1000);
         }
+        boolean isStUsed = true;
         do {
             try {
                 //1.直接秒杀、获取秒杀资格
                 long id = Thread.currentThread().getId();
                 logger.info("Thread ID：{}，发送请求", id);
                 //加密参数
-                st = httpService.getSt(vaccineId.toString());
+                if(isStUsed){
+                    st = httpService.getSt(vaccineId.toString());
+                    isStUsed = false;
+                }
                 orderId = httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(),
                         Config.idCard, st);
                 logger.info("Thread ID：{}，抢购成功", id);
                 break;
             } catch (BusinessException e) {
+                isStUsed = true;
                 logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
                 //如果离开始时间180秒后，或者已经成功抢到则不再继续
                 if (System.currentTimeMillis() > startDate + 1000 * 60 * 20 || orderId != null) {
