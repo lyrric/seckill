@@ -1,10 +1,7 @@
 package com.github.lyrric.conf;
 
-import com.github.lyrric.model.Member;
-
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created on 2020-07-23.
@@ -47,7 +44,7 @@ public class Config {
     /**
      * 调用接口时返回的set-cookie
      */
-    public static Map<String, String> cookie = new HashMap<>();
+    public static Map<String, String> cookie = new ConcurrentHashMap<>();
 
     /**
      * 抢购是否成功
