@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created on 2020-07-22.
@@ -30,7 +28,7 @@ public class SecKillService {
 
     private final Logger logger = LogManager.getLogger(SecKillService.class);
 
-    ExecutorService service = Executors.newFixedThreadPool(20);
+    ExecutorService service = Executors.newFixedThreadPool(3);
 
     public SecKillService() {
         httpService = new HttpService();
@@ -45,61 +43,38 @@ public class SecKillService {
 
         long now = System.currentTimeMillis();
         if(now + 5000 < startDate){
-            logger.info("还未到开始时间，等待中......");
+            logger.info("还未到获取st时间，等待中......");
             Thread.sleep(startDate - now - 5000);
         }
-        AtomicReference<String> orderId = new AtomicReference<>();
-        AtomicReference<String> st = new AtomicReference<>();
         while (true){
             //提前五秒钟获取服务器时间戳接口，计算加密用
             try {
-                st.set(httpService.getSt(vaccineId.toString()));
+                logger.info("Thread ID：main，请求获取加密参数st");
+                Config.st = httpService.getSt(vaccineId.toString());
+                logger.info("Thread ID：main，成功获取加密参数st：{}", Config.st);
                 break;
             }catch (BusinessException e){
-                logger.error("获取st失败: {}", e.getMessage());
+                logger.error("Thread ID：main,获取st失败: {}", e.getMessage());
             }catch (Exception e) {
-                logger.error("获取st失败，大概率是约秒问题:{}", e.getMessage());
+                logger.error("Thread ID：main,获取st失败，大概率是约苗问题:{}", e.getMessage());
             }
         }
         now = System.currentTimeMillis();
         if(now + 1000 < startDate){
-            logger.info("还未到开始时间，等待中......");
+            logger.info("获取st参数成功，还未到秒杀开始时间，等待中......");
             Thread.sleep(startDate - now - 1000);
         }
-        Runnable runnable = ()->{
-            do {
-                try {
-                    //1.直接秒杀、获取秒杀资格
-                    long id = Thread.currentThread().getId();
-                    logger.info("Thread ID：{}，发送请求", id);
-                    orderId.set(httpService.secKill(vaccineId.toString(), "1", Config.memberId.toString(),
-                            Config.idCard, st.get()));
-                    logger.info("Thread ID：{}，抢购成功", id);
-                    break;
-                } catch (BusinessException e) {
-                    logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
-                    if(e.getErrMsg().contains("没抢到")){
-                        break;
-                    }
-                } catch (Exception e) {
-                    logger.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());
-                }finally {
-                    //如果离开始时间180秒后，或者已经成功抢到则不再继续
-                    if (System.currentTimeMillis() > startDate + 1000 * 60 *10 || orderId.get() !=null) {
-                        break;
-                    }
-                }
-            } while (orderId.get() == null);
-        };
 
-        for (int i = 0; i < 20; i++) {
-            service.submit(runnable);
-        }
+        service.submit(new SecKillRunnable(false, httpService, vaccineId, startDate));
+        Thread.sleep(500);
+        service.submit(new SecKillRunnable(true, httpService, vaccineId, startDate));
+        Thread.sleep(500);
+        service.submit(new SecKillRunnable(false, httpService, vaccineId, startDate));
         service.shutdown();
         //等待线程结束
         try {
             service.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-            if (orderId.get() !=null) {
+            if (Config.success) {
                 if (mainFrame != null) {
                     mainFrame.appendMsg("抢购成功，请登录约苗小程序查看");
                 }
@@ -108,6 +83,7 @@ public class SecKillService {
                 if (mainFrame != null) {
                     mainFrame.appendMsg("抢购失败");
                 }
+                logger.info("抢购失败");
             }
         }catch (Exception e){
             e.printStackTrace();

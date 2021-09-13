@@ -49,4 +49,14 @@ public class Config {
      */
     public static Map<String, String> cookie = new HashMap<>();
 
+    /**
+     * 抢购是否成功
+     */
+    public static boolean success = false;
+
+    /**
+     * 加密参数st
+     */
+    public static String st;
+
 }
