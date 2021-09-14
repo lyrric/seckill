@@ -4,10 +4,12 @@ import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.BusinessException;
 import com.github.lyrric.model.VaccineList;
 import com.github.lyrric.ui.MainFrame;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -36,7 +38,7 @@ public class SecKillService {
     }
 
     /**
-     * 多线程秒杀开启
+     * 秒杀开启
      */
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     public void startSecKill(Integer vaccineId, String startDateStr, MainFrame mainFrame) throws ParseException, InterruptedException {
@@ -85,6 +87,8 @@ public class SecKillService {
                 if(e.getErrMsg().contains("没抢到")){
                     break;
                 }
+            }catch (ConnectTimeoutException | SocketTimeoutException socketTimeoutException ){
+                logger.error("Thread ID: {},抢购失败: 超时了", Thread.currentThread().getId());
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.warn("Thread ID: {}，未知异常", Thread.currentThread().getId());

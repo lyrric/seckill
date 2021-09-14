@@ -138,9 +138,9 @@ public class HttpService {
         get.setHeaders(headers.toArray(new Header[0]));
         CloseableHttpClient httpClient = HttpClients.createDefault();
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectionRequestTimeout(3000)
-                .setSocketTimeout(3000)
-                .setConnectTimeout(3000)
+                .setConnectionRequestTimeout(2500)
+                .setSocketTimeout(2500)
+                .setConnectTimeout(2500)
                 .build();
         get.setConfig(requestConfig);
         CloseableHttpResponse response = httpClient.execute(get);
