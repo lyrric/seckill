@@ -66,9 +66,9 @@ public class SecKillService {
         }
 
         service.submit(new SecKillRunnable(false, httpService, vaccineId, startDate));
-        Thread.sleep(500);
+        Thread.sleep(200);
         service.submit(new SecKillRunnable(true, httpService, vaccineId, startDate));
-        Thread.sleep(500);
+        Thread.sleep(200);
         service.submit(new SecKillRunnable(false, httpService, vaccineId, startDate));
         service.shutdown();
         //等待线程结束
