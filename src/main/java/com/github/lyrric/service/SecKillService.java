@@ -4,10 +4,12 @@ import com.github.lyrric.conf.Config;
 import com.github.lyrric.model.BusinessException;
 import com.github.lyrric.model.VaccineList;
 import com.github.lyrric.ui.MainFrame;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,7 +30,7 @@ public class SecKillService {
 
     private final Logger logger = LogManager.getLogger(SecKillService.class);
 
-    ExecutorService service = Executors.newFixedThreadPool(3);
+    ExecutorService service = Executors.newFixedThreadPool(4);
 
     public SecKillService() {
         httpService = new HttpService();
@@ -53,6 +55,8 @@ public class SecKillService {
                 Config.st = httpService.getSt(vaccineId.toString());
                 logger.info("Thread ID：main，成功获取加密参数st：{}", Config.st);
                 break;
+            }catch (ConnectTimeoutException  | SocketTimeoutException socketTimeoutException ){
+                logger.error("Thread ID：main,获取st失败: 超时");
             }catch (BusinessException e){
                 logger.error("Thread ID：main,获取st失败: {}", e.getMessage());
             }catch (Exception e) {
@@ -66,6 +70,8 @@ public class SecKillService {
         }
 
         service.submit(new SecKillRunnable(false, httpService, vaccineId, startDate));
+        Thread.sleep(200);
+        service.submit(new SecKillRunnable(true, httpService, vaccineId, startDate));
         Thread.sleep(200);
         service.submit(new SecKillRunnable(true, httpService, vaccineId, startDate));
         Thread.sleep(200);

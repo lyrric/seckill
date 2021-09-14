@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -134,6 +135,12 @@ public class HttpService {
         if(extHeader != null){
             headers.add(extHeader);
         }
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectionRequestTimeout(2500)
+                .setSocketTimeout(2500)
+                .setConnectTimeout(2500)
+                .build();
+        get.setConfig(requestConfig);
         get.setHeaders(headers.toArray(new Header[0]));
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response = httpClient.execute(get);

@@ -48,8 +48,9 @@ public class Config {
 
     /**
      * 抢购是否成功
+     * false表示疫苗已抢光
      */
-    public static boolean success = false;
+    public static Boolean success = null;
 
     /**
      * 加密参数st
