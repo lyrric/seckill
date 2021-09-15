@@ -58,11 +58,26 @@ public class SecKillService {
                 logger.warn("httpService.log,未知异常:{}，", e.getMessage());
             }
         }while (true);
+        boolean isStUsed = true;
+        now = System.currentTimeMillis();
+        if(now + 1000 < startDate){
+            logger.info("还未到获取st时间，等待中......");
+            Thread.sleep(startDate - now - 1000);
+        }
+        do {
+            try {
+                st = httpService.getSt(vaccineId.toString());
+                isStUsed = false;
+                logger.info("成功获取到st");
+                break;
+            }catch (Exception e){
+                logger.warn("获取st失败,未知异常:{}，", e.getMessage());
+            }
+        }while (true);
         if(now + 500 < startDate){
-            logger.info("还未到开始时间，等待中......");
+            logger.info("还未到获取开始秒杀时间，等待中......");
             Thread.sleep(startDate - now - 500);
         }
-        boolean isStUsed = true;
         do {
             try {
                 //1.直接秒杀、获取秒杀资格
@@ -80,8 +95,8 @@ public class SecKillService {
             } catch (BusinessException e) {
                 isStUsed = true;
                 logger.info("Thread ID: {}, 抢购失败: {}",Thread.currentThread().getId(), e.getErrMsg());
-                //如果离开始时间180秒后，或者已经成功抢到则不再继续
-                if (System.currentTimeMillis() > startDate + 1000 * 60 * 20 || orderId != null) {
+                //如果离开始时间XX秒后，则不再继续
+                if (System.currentTimeMillis() > startDate + 1000 * 60 * 20) {
                     break;
                 }
                 if(e.getErrMsg().contains("没抢到")){
