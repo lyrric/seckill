@@ -58,9 +58,9 @@ public class SecKillService {
                 logger.warn("httpService.log,未知异常:{}，", e.getMessage());
             }
         }while (true);
-        if(now + 1000 < startDate){
+        if(now + 500 < startDate){
             logger.info("还未到开始时间，等待中......");
-            Thread.sleep(startDate - now - 1000);
+            Thread.sleep(startDate - now - 500);
         }
         boolean isStUsed = true;
         do {
