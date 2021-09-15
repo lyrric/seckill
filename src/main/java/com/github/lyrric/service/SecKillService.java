@@ -64,9 +64,9 @@ public class SecKillService {
             }
         }
         now = System.currentTimeMillis();
-        if(now + 1000 < startDate){
+        if(now + 500 < startDate){
             logger.info("获取st参数成功，还未到秒杀开始时间，等待中......");
-            Thread.sleep(startDate - now - 1000);
+            Thread.sleep(startDate - now - 500);
         }
 
         service.submit(new SecKillRunnable(false, httpService, vaccineId, startDate));
