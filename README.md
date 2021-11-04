@@ -1,4 +1,4 @@
-# 约苗秒杀 
+# 约苗秒杀 （only小程序）
 **共享资源，仅能用于学习，请勿用于商业。**  
 **Sharing of resources, can only be used for learning, not for business！！！**
 ## 更新日志
