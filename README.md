@@ -1,4 +1,7 @@
 # 约苗秒杀 （only小程序）
+## 此项目已停止维护  
+非常抱歉，由于约苗后台做了限制，无法判断其逻辑，此项目已失效。 
+## 须知  
 **共享资源，仅能用于学习，请勿用于商业。**  
 **Sharing of resources, can only be used for learning, not for business！！！**
 ## 更新日志
